@@ -5,6 +5,7 @@ import { FirebaseError } from 'firebase/app';
 
 import { auth } from '../../../auth/firebase';
 import HeaderBase from '../../../common/components/HeaderBase';
+import HeaderButtonLink from '../../../common/components/HeaderButtonLink';
 
 /**
  * 管理者ヘッダー
@@ -30,7 +31,7 @@ function AdminHeader() {
     return (
         <HeaderBase
             title="管理者パネル"
-            right={<button onClick={handleLogout}>ログアウト</button>}
+            right={<HeaderButtonLink className="px-2 py-1 hover:bg-gray-200 rounded" onClick={handleLogout}>ログアウト</HeaderButtonLink>}
         />
     )
 }

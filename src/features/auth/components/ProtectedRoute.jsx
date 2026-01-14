@@ -1,21 +1,9 @@
-import { useEffect, useState } from 'react';
-
-import { onAuthStateChanged } from 'firebase/auth';
 import { Navigate } from 'react-router-dom';
 
-import { auth } from '../firebase';
+import { useAuth } from '../hooks/useAuth'
 
 function ProtectedRoute({ children }) {
-    const [user, setUser] = useState(null);
-    const [authReady, setAuthReady] = useState(false);
-
-    useEffect(() => {
-        const unsub = onAuthStateChanged(auth, (user) => {
-            setUser(user);
-            setAuthReady(true);
-        });
-        return () => unsub();
-    }, []);
+    const { user, authReady } = useAuth();
 
     /**
      * Firebase Authはページリロード時に非同期で認証状態を復元するため、

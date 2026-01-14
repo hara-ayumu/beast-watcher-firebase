@@ -1,13 +1,16 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 
 import HeaderBase from '../../../common/components/HeaderBase';
+import HeaderButtonLink from '../../../common/components/HeaderButtonLink';
+
+import { useAuth } from '../../../auth/hooks/useAuth'
 
 function PublicHeader({ expanded, onToggle }) {
     const [ isMenuOpen, setIsMenuOpen ] = useState(false);
+    const { user } = useAuth();
 
     const menuItems = [
-        { label: 'ログイン', href: '/login' },
+        user ? { label: '管理画面へ', href: '/admin' } : { label: 'ログイン', href: '/login' },
     ];
 
     const rightContent = (
@@ -15,13 +18,13 @@ function PublicHeader({ expanded, onToggle }) {
             {/* PC */}
             <div className="hidden md:flex space-x-4">
                 {menuItems.map(item => (
-                    <Link
+                    <HeaderButtonLink
                         key={item.label}
                         to={item.href}
                         className="px-2 py-1 hover:bg-gray-200 rounded"
                     >
                         {item.label}
-                    </Link>
+                    </HeaderButtonLink>
                 ))}
             </div>
 
@@ -40,14 +43,14 @@ function PublicHeader({ expanded, onToggle }) {
                 {isMenuOpen && (
                     <div className="absolute right-0 mt-2 w-40 bg-white border rounded shadow-lg z-20">
                         {menuItems.map(item => (
-                            <Link
+                            <HeaderButtonLink
                                 key={item.label}
                                 to={item.href}
                                 className="block px-4 py-2 hover:bg-gray-200"
                                 onClick={() => setIsMenuOpen(false)}
                             >
                                 {item.label}
-                            </Link>
+                            </HeaderButtonLink>
                         ))}
                     </div>
                 )}
