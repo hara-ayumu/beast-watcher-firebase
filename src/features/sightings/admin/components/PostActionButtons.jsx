@@ -45,7 +45,7 @@ function PostActionButtons({ status, onApprove, onReject }) {
     }
 
     return (
-        <div className="flex gap-2">
+        <div className="flex gap-2 justify-center">
             {getButtons().map((btn, i) => (
                 <button
                     key={i}

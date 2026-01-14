@@ -61,8 +61,6 @@ function AdminPanel() {
     const columns = [
         { key: 'type', label: '種類' },
         { key: 'date', label: '日時' },
-        { key: 'lat', label: '緯度' },
-        { key: 'lng', label: '経度' },
         { key: 'note', label: '詳細' },
     ]
 

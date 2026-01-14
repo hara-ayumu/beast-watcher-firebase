@@ -9,8 +9,7 @@
  * @param {Array} data - 表示するデータ
  * @param {Boolean} zebra - 奇数偶数で色分け
  * @param {Function} onRowClick - 行クリック時
- * @param {Function | Array} rowActions - 行右端にボタンなどを描画
- *  関数の場合: 
+ * @param {Function} rowActions - 行右端にボタンなどを描画
  * @returns {JSX.Element}
  */
 function DataGrid({ columns, data, zebra = false, onRowClick, rowActions }) {
@@ -27,7 +26,7 @@ function DataGrid({ columns, data, zebra = false, onRowClick, rowActions }) {
                                 {col.label}
                             </th>
                         ))}
-                        {rowActions && <th className="px-4 py-2 border-b border-gray-300">操作</th>}
+                        {rowActions && <th className="px-4 py-2 text-center font-semibold border-b border-gray-300">操作</th>}
                     </tr>
                 </thead>
                 <tbody>
@@ -47,21 +46,7 @@ function DataGrid({ columns, data, zebra = false, onRowClick, rowActions }) {
                             ))}
                             {rowActions && (
                                 <td className="px-4 py-2 border-b border-gray-200">
-                                    {typeof rowActions === 'function'
-                                        ? rowActions(row)
-                                        : rowActions.map((action, i) => (
-                                            <button
-                                                key={i}
-                                                className="mr-2 px-2 py-1 text-sm text-black bg-blue-500 rounded hover:bg-blue-600"
-                                                onClick={(e) => {
-                                                    e.stopPropagation(); // 配列バージョンのために一応
-                                                    action.onClick(row);
-                                            }}
-                                            >
-                                                {action.label}
-                                            </button>
-                                        ))
-                                    }
+                                    {typeof rowActions === 'function' ? rowActions(row) : null}
                                 </td>
                             )}
                         </tr>
