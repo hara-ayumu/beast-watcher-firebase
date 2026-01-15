@@ -71,6 +71,14 @@ function AdminPanel() {
     }, [error]);
 
     useEffect(() => {
+        // 承認・却下により、選択中の投稿が表示中の投稿一覧から外れた場合はInfoWindowを閉じる
+        if (selectedPost && !filteredPosts.some(post => post.id === selectedPost.id)) {
+            setSelectedPost(null);
+        }
+    }, [filteredPosts, selectedPost]);
+
+    useEffect(() => {
+        // 投稿選択時、地図の表示位置が選択した投稿の座標と異なる場合は地図の中心を移動する
         if (selectedPost && mapRef) {
             const currentCenter = mapRef.getCenter();
             if (currentCenter.lat() !== selectedPost.lat || currentCenter.lng() !== selectedPost.lng) {
@@ -78,7 +86,7 @@ function AdminPanel() {
                 mapRef.setZoom(14);
             }
         }
-    }, [selectedPost, mapRef])
+    }, [selectedPost, mapRef]);
 
     if (loading) return <div>読み込み中...</div>;
 
