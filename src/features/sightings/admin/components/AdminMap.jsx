@@ -2,6 +2,8 @@ import { GoogleMap, Marker, InfoWindow, useJsApiLoader } from '@react-google-map
 
 import PostActionButtons from './PostActionButtons';
 
+import { ADMIN_MAP_INITIAL_ZOOM } from '../../constants/mapConstants';
+
 /**
  * 管理者向けマップコンポーネント
  * - 投稿データをマーカーで表示
@@ -34,7 +36,7 @@ function AdminMap({posts, selectedPost, setSelectedPost, onApprove, onReject, ma
         <GoogleMap
             mapContainerStyle={{ width: '100%', height: '100%' }}
             center={center}
-            zoom={12}
+            zoom={ADMIN_MAP_INITIAL_ZOOM}
             options={{
                 disableDefaultUI: true,
                 zoomControl: true,

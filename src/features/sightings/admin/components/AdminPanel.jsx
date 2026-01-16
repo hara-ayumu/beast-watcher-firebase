@@ -8,6 +8,7 @@ import DataGrid from './DataGrid';
 import PostActionButtons from './PostActionButtons';
 
 import { useAdminSightings } from '../hooks/useAdminSightings';
+import { DEFAULT_MAP_CENTER } from '../../constants/mapConstants';
 
 /**
  * 管理者向け投稿管理パネル
@@ -21,7 +22,7 @@ function AdminPanel() {
     // 選択中のマーカー(InfoWindow表示用)
     const [ selectedPost, setSelectedPost ] = useState(null);
     const [ mapRef, setMapRef ] = useState(null);
-    const [center, setCenter] = useState({ lat: 35.5, lng: 137.8 });
+    const [center, setCenter] = useState(DEFAULT_MAP_CENTER);
 
     const [ activeTab, setActiveTab ] = useState('pending');
 

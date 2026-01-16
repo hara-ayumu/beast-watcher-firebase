@@ -1,6 +1,8 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 
 import { GoogleMap, Marker , InfoWindow, useJsApiLoader } from '@react-google-maps/api';
+
+import { DEFAULT_MAP_CENTER, PUBLIC_MAP_INITIAL_ZOOM } from '../../constants/mapConstants';
 
 /**
  * Google Mapを表示するコンポーネント
@@ -16,7 +18,6 @@ function Map({ markers, onMapClick, selectedLocation }) {
         },
     });
 
-    const center = useMemo(() => ({ lat: 35.5, lng: 137.8 }), []);
     const [ selectedMarker, setSelectedMarker ] = useState(null);
 
     if (!isLoaded) return <div>地図を読み込み中...</div>;
@@ -25,8 +26,8 @@ function Map({ markers, onMapClick, selectedLocation }) {
         <>
             <GoogleMap
                 mapContainerStyle={{ width: '100%', height: '100%' }}
-                center={center}
-                zoom={12}
+                center={DEFAULT_MAP_CENTER}
+                zoom={PUBLIC_MAP_INITIAL_ZOOM}
                 options={{
                     disableDefaultUI: true,
                     zoomControl: true,
