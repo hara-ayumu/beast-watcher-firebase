@@ -9,6 +9,7 @@ import PostActionButtons from './PostActionButtons';
 
 import { useAdminSightings } from '../hooks/useAdminSightings';
 import { DEFAULT_MAP_CENTER } from '../../constants/mapConstants';
+import { SIGHTING_STATUS } from '../../constants/sightingStatus';
 
 /**
  * 管理者向け投稿管理パネル
@@ -24,7 +25,7 @@ function AdminPanel() {
     const [ mapRef, setMapRef ] = useState(null);
     const [center, setCenter] = useState(DEFAULT_MAP_CENTER);
 
-    const [ activeTab, setActiveTab ] = useState('pending');
+    const [ activeTab, setActiveTab ] = useState(SIGHTING_STATUS.PENDING);
 
     const { posts, loading, error, changePostStatus } = useAdminSightings();
 
@@ -43,8 +44,8 @@ function AdminPanel() {
     }
 
     // 承認・却下ボタンハンドラ
-    const handleApprove = (id) => changePostStatus(id, 'approved');
-    const handleReject = (id) => changePostStatus(id, 'rejected');
+    const handleApprove = (id) => changePostStatus(id, SIGHTING_STATUS.APPROVED);
+    const handleReject = (id) => changePostStatus(id, SIGHTING_STATUS.REJECTED);
 
     /**
      * 投稿を選択し、地図中心を該当座標に移動
@@ -112,9 +113,9 @@ function AdminPanel() {
             <div className="w-1/2 h-full flex flex-col">
                 <Tabs
                     tabs={[
-                        { label: '未承認', value: 'pending' },
-                        { label: '承認済み', value: 'approved' },
-                        { label: '却下済み', value: 'rejected' },
+                        { label: '未承認', value: SIGHTING_STATUS.PENDING },
+                        { label: '承認済み', value: SIGHTING_STATUS.APPROVED },
+                        { label: '却下済み', value: SIGHTING_STATUS.REJECTED },
                     ]}
                     activeTab={activeTab}
                     onChange={handleTabChange}

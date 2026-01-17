@@ -1,5 +1,6 @@
 import { collection, getDocs, addDoc, updateDoc, doc, query, where, orderBy, Timestamp } from 'firebase/firestore';
 import { db } from '../../auth/firebase';
+import { SIGHTING_STATUS } from '../constants/sightingStatus';
 
 /**
  * 投稿者用: 投稿を取得（承認済みのみ）
@@ -9,7 +10,7 @@ export const fetchPublicSightings = async () => {
     try {
         const sightingsQuery = query(
             collection(db, 'sightings'),
-            where('status', '==', 'approved'),
+            where('status', '==', SIGHTING_STATUS.APPROVED),
             orderBy('date', 'desc')
         );
 
@@ -32,7 +33,7 @@ export const createSighting = async (data) => {
         const payload = {
             ...data,
             date: data.date instanceof Date ? Timestamp.fromDate(data.date) : data.date,
-            status: 'pending',
+            status: SIGHTING_STATUS.PENDING,
         };
         return await addDoc(collection(db, 'sightings'), payload);
     }

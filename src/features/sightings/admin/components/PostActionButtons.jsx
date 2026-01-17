@@ -1,3 +1,5 @@
+import { SIGHTING_STATUS } from '../../constants/sightingStatus';
+
 /**
  * 投稿ステータスに応じた操作ボタンを表示するコンポーネント
  * DataGridやInfoWindowなど共通で使用可能
@@ -10,7 +12,7 @@ function PostActionButtons({ status, onApprove, onReject }) {
     // ステータスに応じたボタン配列を返す関数
     const getButtons = () => {
         switch (status) {
-            case 'pending':
+            case SIGHTING_STATUS.PENDING:
                 return [
                     {
                         label: '承認',
@@ -23,7 +25,7 @@ function PostActionButtons({ status, onApprove, onReject }) {
                         action: onReject,
                     },
                 ];
-            case 'approved':
+            case SIGHTING_STATUS.APPROVED:
                 return [
                     {
                         label: '却下',
@@ -31,7 +33,7 @@ function PostActionButtons({ status, onApprove, onReject }) {
                         action: onReject,
                     },
                 ];
-            case 'rejected':
+            case SIGHTING_STATUS.REJECTED:
                 return [
                     {
                         label: '承認',

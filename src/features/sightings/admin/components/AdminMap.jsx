@@ -3,6 +3,7 @@ import { GoogleMap, Marker, InfoWindow, useJsApiLoader } from '@react-google-map
 import PostActionButtons from './PostActionButtons';
 
 import { ADMIN_MAP_INITIAL_ZOOM } from '../../constants/mapConstants';
+import { SIGHTING_STATUS } from '../../constants/sightingStatus';
 
 /**
  * 管理者向けマップコンポーネント
@@ -55,9 +56,9 @@ function AdminMap({posts, selectedPost, setSelectedPost, onApprove, onReject, ma
                     onClick={() => setSelectedPost(post)}
                     icon={{
                         url:
-                            post.status === 'approved'
+                            post.status === SIGHTING_STATUS.APPROVED
                                 ? 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
-                                : post.status === 'rejected'
+                                : post.status === SIGHTING_STATUS.REJECTED
                                 ? 'http://maps.google.com/mapfiles/ms/icons/red-dot.png'
                                 : 'http://maps.google.com/mapfiles/ms/icons/yellow-dot.png',
                         }}
