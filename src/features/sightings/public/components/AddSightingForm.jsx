@@ -2,6 +2,7 @@ import { useState } from 'react';
 
 import toast from 'react-hot-toast';
 import { usePublicSightings } from '../hooks/usePublicSightings';
+import { SIGHTING_TYPE_OPTIONS } from '../../constants/sightingTypes';
 
 function AddSightingForm({ selectedLocation, onSubmit }) {
     const [ type, setType ] = useState('');
@@ -53,8 +54,11 @@ function AddSightingForm({ selectedLocation, onSubmit }) {
                     required
                 >
                     <option value="">-- 選択してください --</option>
-                    <option value="クマ">クマ</option>
-                    <option value="サル">サル</option>
+                    {SIGHTING_TYPE_OPTIONS.map((option) => (
+                        <option key={option.value} value={option.value}>
+                            {option.label}
+                        </option>
+                    ))}
                 </select>
             </label>
 
