@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { GoogleMap, Marker , InfoWindow, useJsApiLoader } from '@react-google-maps/api';
 
 import { DEFAULT_MAP_CENTER, PUBLIC_MAP_INITIAL_ZOOM } from '../../constants/mapConstants';
+import { POST_PLAN_POINT_MARKER_ICON } from '../../constants/markerIcons';
 
 /**
  * Google Mapを表示するコンポーネント
@@ -38,6 +39,7 @@ function Map({ markers, onMapClick, selectedLocation }) {
                     onMapClick({ lat, lng });
                 }}
             >
+                {/* 見慣れたGoogleMap標準マーカーを使用するためicon指定なし */}
                 {markers.map((marker, index) => (
                     <Marker
                         key={index}
@@ -50,9 +52,7 @@ function Map({ markers, onMapClick, selectedLocation }) {
                 {selectedLocation && (
                     <Marker
                         position={{ lat: selectedLocation.lat, lng: selectedLocation.lng }}
-                        icon={{
-                            url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',
-                        }}
+                        icon={{ url: POST_PLAN_POINT_MARKER_ICON }}
                         title="投稿予定地点"
                     />
                 )}
