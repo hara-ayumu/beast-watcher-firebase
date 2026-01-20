@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { fetchPublicSightings, createSighting } from '../../services/sightingsService';
+import { mapErrorToUiMessage } from '../../../utils/errorMapper';
 
 export const usePublicSightings = () => {
     const [ posts, setPosts ] = useState([]);
@@ -15,12 +16,12 @@ export const usePublicSightings = () => {
             setPosts(data);
         }
         catch (err) {
-            setError(err);
+            setError(mapErrorToUiMessage(err));
         }
         finally {
             setLoading(false);
         }
-    }
+    };
 
     const addPost = async (postData) => {
         setLoading(true);
@@ -31,16 +32,16 @@ export const usePublicSightings = () => {
             setPosts(prev => [{ id: newDoc.id, ...postData }, ...prev]);
         }
         catch (err) {
-            setError('投稿に失敗しました。再試行してください。');
+            setError(mapErrorToUiMessage(err));
         }
         finally {
             setLoading(false);
         }
-    }
+    };
 
     useEffect(() => {
         loadPosts();
     }, []);
 
     return { posts, loading, error, loadPosts, addPost };
-}
+};

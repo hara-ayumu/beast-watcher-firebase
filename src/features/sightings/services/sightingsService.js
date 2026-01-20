@@ -1,6 +1,37 @@
 import { collection, getDocs, addDoc, updateDoc, doc, query, where, orderBy, Timestamp } from 'firebase/firestore';
 import { db } from '../../auth/firebase';
 import { SIGHTING_STATUS } from '../constants/sightingStatus';
+import { ERROR_CODES } from '../constants/errorCodes';
+
+/**
+ * 開発環境でのみ詳細ログを出す
+ */
+const isDev = import.meta.env.VITE_APP_ENV === 'development';
+const handleAndWrap = (code, originalError) => {
+    if (isDev) {
+        console.error(`[SightingsService] ${code}`, originalError);
+    }
+    const err = new Error(code);
+    err.code = code;
+    return err;
+};
+
+/**
+ * 投稿者用: 新規投稿（ステータスは必ず未承認）
+ */
+export const createSighting = async (data) => {
+    try {
+        const payload = {
+            ...data,
+            date: data.date instanceof Date ? Timestamp.fromDate(data.date) : data.date,
+            status: SIGHTING_STATUS.PENDING,
+        };
+        return await addDoc(collection(db, 'sightings'), payload);
+    }
+    catch (err) {
+        throw handleAndWrap(ERROR_CODES.CREATE_SIGHTING_FAILED, err);
+    }
+};
 
 /**
  * 投稿者用: 投稿を取得（承認済みのみ）
@@ -20,28 +51,9 @@ export const fetchPublicSightings = async () => {
         }));
     }
     catch (err) {
-        console.error('fetchPublicSightingsエラー:', err);
-        throw err;
+        throw handleAndWrap(ERROR_CODES.FETCH_PUBLIC_SIGHTINGS_FAILED, err);
     }
-}
-
-/**
- * 投稿者用: 新規投稿（ステータスは必ず未承認）
- */
-export const createSighting = async (data) => {
-    try {
-        const payload = {
-            ...data,
-            date: data.date instanceof Date ? Timestamp.fromDate(data.date) : data.date,
-            status: SIGHTING_STATUS.PENDING,
-        };
-        return await addDoc(collection(db, 'sightings'), payload);
-    }
-    catch (err) {
-        console.error('createSightingエラー:', err);
-        throw err;
-    }
-}
+};
 
 /**
  * 管理者用: すべての投稿を取得
@@ -59,10 +71,9 @@ export const fetchAllSightings = async () => {
         }));
     }
     catch (err) {
-        console.error('updateSightingStatusエラー:', err);
-        throw err;
+        throw handleAndWrap(ERROR_CODES.FETCH_ALL_SIGHTINGS_FAILED, err);
     }
-}
+};
 
 /**
  * 管理者用: 投稿ステータス更新
@@ -73,7 +84,6 @@ export const updateSightingStatus = async (id, status) => {
         await updateDoc(ref, { status });
     }
     catch (err) {
-        console.error('updateSightingStatusエラー:', err);
-        throw err;
+        throw handleAndWrap(ERROR_CODES.UPDATE_SIGHTING_STATUS_FAILED, err);
     }
-}
+};

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { fetchAllSightings, updateSightingStatus } from '../../services/sightingsService';
+import { mapErrorToUiMessage } from '../../../utils/errorMapper';
 
 export const useAdminSightings = () => {
     const [ posts, setPosts ] = useState([]);
@@ -15,12 +16,12 @@ export const useAdminSightings = () => {
             setPosts(data);
         }
         catch (err) {
-            setError('投稿データの取得に失敗しました。');
+            setError(mapErrorToUiMessage(err));
         }
         finally {
             setLoading(false);
         }
-    }
+    };
 
     const changePostStatus = async (id, status) => {
         setLoading(true);
@@ -35,16 +36,16 @@ export const useAdminSightings = () => {
             );
         }
         catch (err) {
-            setError('ステータス更新に失敗しました。');
+            setError(mapErrorToUiMessage(err));
         }
         finally {
             setLoading(false);
         }
-    }
+    };
 
     useEffect(() => {
         loadPosts();
     }, []);
 
     return { posts, loading, error, loadPosts, changePostStatus };
-}
+};
