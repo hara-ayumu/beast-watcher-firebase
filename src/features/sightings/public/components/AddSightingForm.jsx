@@ -3,6 +3,9 @@ import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { usePublicSightings } from '../hooks/usePublicSightings';
 import { SIGHTING_TYPE_OPTIONS } from '../../constants/sightingTypes';
+import { mapErrorToUiMessage } from '../../../utils/errorMapper';
+import { ERROR_MESSAGES } from '../../constants/errorMessages';
+import { ERROR_CODES } from '../../constants/errorCodes';
 
 function AddSightingForm({ selectedLocation, onSubmit }) {
     const [ type, setType ] = useState('');
@@ -20,16 +23,19 @@ function AddSightingForm({ selectedLocation, onSubmit }) {
             return;
         }
 
-        try {
-            await addPost({
-                type,
-                date: new Date(date),
-                note,
-                lat: selectedLocation.lat,
-                lng: selectedLocation.lng,
-            });
+        const postData = {
+            type,
+            date: new Date(date),
+            note,
+            lat: selectedLocation.lat,
+            lng: selectedLocation.lng,
+        };
+
+        const result = await addPost(postData);
+
+        if (result.success) {
             // 成功時トースト表示
-            toast.success('投稿が送信されました（承認待ち）');
+            toast.success('投稿が送信されました。（承認待ち）');
 
             setType('');
             setDate('');
@@ -37,9 +43,9 @@ function AddSightingForm({ selectedLocation, onSubmit }) {
             setMessage('');
             onSubmit?.();
         }
-        catch (err) {
-            console.log('投稿エラー', err);
-            setMessage('投稿に失敗しました');
+        else {
+            const userMessage = mapErrorToUiMessage(result.error) || ERROR_MESSAGES[ERROR_CODES.CREATE_SIGHTING_FAILED];
+            setMessage(userMessage);
         }
     };
 

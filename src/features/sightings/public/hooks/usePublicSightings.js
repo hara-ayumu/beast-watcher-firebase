@@ -30,9 +30,12 @@ export const usePublicSightings = () => {
         try {
             const newDoc = await createSighting(postData);
             setPosts(prev => [{ id: newDoc.id, ...postData }, ...prev]);
+            return { success: true };
         }
         catch (err) {
-            setError(mapErrorToUiMessage(err));
+            const message = mapErrorToUiMessage(err);
+            setError(message);
+            return { success: false, error: message };
         }
         finally {
             setLoading(false);
