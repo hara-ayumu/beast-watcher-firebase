@@ -23,7 +23,7 @@ function Home() {
     const startYRef = useRef(0);
     const draggingRef = useRef(false);
 
-    const { posts: markers, loadPosts } = usePublicSightings();
+    const { posts: markers, loading, error, loadPosts } = usePublicSightings();
 
     // 投稿後の仮マーカーを削除してMAP再表示
     const handleUpdate = () => {
@@ -31,7 +31,7 @@ function Home() {
         loadPosts();
         setSelectedLocation(null);
         setSheetOpen(false);
-    }
+    };
 
     // ボトムシートドラッグ処理
     const touchHandlers = {
@@ -51,6 +51,25 @@ function Home() {
             draggingRef.current = false;
         }
     }
+
+    // 投稿の一覧の取得に失敗したときに再試行ボタンを表示
+    if (error && markers.length === 0) {
+        return (
+            <div className="p-4">
+                <div className="bg-red-100 border border-red-300 text-red-800 p-4 rounded mb-4">
+                    <p>{error}</p>
+                </div>
+                <button
+                    className="px-4 py-2 bg-blue-500 text-white rounded"
+                    onClick={() => loadPosts()}
+                >
+                    再試行
+                </button>
+            </div>
+        );
+    }
+
+    if (loading) return <div>読み込み中...</div>;
 
     return (
         <div className="flex h-screen w-screen">

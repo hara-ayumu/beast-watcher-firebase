@@ -29,7 +29,7 @@ function AdminPanel() {
 
     const [ activeTab, setActiveTab ] = useState(SIGHTING_STATUS.PENDING);
 
-    const { posts, loading, changePostStatus } = useAdminSightings();
+    const { posts, loading, error, loadPosts, changePostStatus } = useAdminSightings();
 
     // タブに応じてフィルタ
     const filteredPosts = posts
@@ -111,6 +111,23 @@ function AdminPanel() {
             }
         }
     }, [selectedPost, mapRef]);
+
+    // 投稿の一覧の取得に失敗したときに再試行ボタンを表示
+    if (error && posts.length === 0) {
+        return (
+            <div className="p-4">
+                <div className="bg-red-100 border border-red-300 text-red-800 p-4 rounded mb-4">
+                    <p>{error}</p>
+                </div>
+                <button
+                    className="px-4 py-2 bg-blue-500 text-white rounded"
+                    onClick={() => loadPosts()}
+                >
+                    再試行
+                </button>
+            </div>
+        );
+    }
 
     if (loading) return <div>読み込み中...</div>;
 
