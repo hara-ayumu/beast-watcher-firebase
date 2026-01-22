@@ -23,6 +23,11 @@ export const useAdminSightings = () => {
         }
     };
 
+    /**
+     * 投稿ステータスを更新する
+     * UI側で失敗時にトーストを出すことを想定して、成功/失敗で返す
+     * @returns {Promise<{success: boolean, error?: string}>}
+     */
     const changePostStatus = async (id, status) => {
         setLoading(true);
         setError(null);
@@ -34,9 +39,12 @@ export const useAdminSightings = () => {
                     p.id === id ? { ...p, status } : p
                 )
             );
+            return { success: true };
         }
         catch (err) {
-            setError(mapErrorToUiMessage(err));
+            const message = mapErrorToUiMessage(err);
+            setError(message);
+            return { success: false, error: message };
         }
         finally {
             setLoading(false);

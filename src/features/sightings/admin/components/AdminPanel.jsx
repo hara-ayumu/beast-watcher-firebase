@@ -10,6 +10,8 @@ import PostActionButtons from './PostActionButtons';
 import { useAdminSightings } from '../hooks/useAdminSightings';
 import { DEFAULT_MAP_CENTER } from '../../constants/mapConstants';
 import { SIGHTING_STATUS } from '../../constants/sightingStatus';
+import { ERROR_MESSAGES } from '../../constants/errorMessages';
+import { ERROR_CODES } from '../../constants/errorCodes';
 
 /**
  * 管理者向け投稿管理パネル
@@ -23,11 +25,11 @@ function AdminPanel() {
     // 選択中のマーカー(InfoWindow表示用)
     const [ selectedPost, setSelectedPost ] = useState(null);
     const [ mapRef, setMapRef ] = useState(null);
-    const [center, setCenter] = useState(DEFAULT_MAP_CENTER);
+    const [ center, setCenter ] = useState(DEFAULT_MAP_CENTER);
 
     const [ activeTab, setActiveTab ] = useState(SIGHTING_STATUS.PENDING);
 
-    const { posts, loading, error, changePostStatus } = useAdminSightings();
+    const { posts, loading, changePostStatus } = useAdminSightings();
 
     // タブに応じてフィルタ
     const filteredPosts = posts
@@ -41,11 +43,37 @@ function AdminPanel() {
     const handleTabChange = (value) => {
         setActiveTab(value);
         setSelectedPost(null);
-    }
+    };
+
+    /**
+     * 投稿ステータスを変更する共通関数
+     * @param {string} id - 投稿の一意のID 
+     * @param {Object} params - ステータス変更に関するパラメータ
+     * @param {string} params.status - 新しいステータス（承認、却下など）
+     * @param {string} params.successMessage - ステータス変更成功時に表示するメッセージ
+     * @returns {Promise<void>}
+     */
+    const handleChangePostStatus = async (id, { status, successMessage }) => {
+        const res = await changePostStatus(id, status);
+        // 投稿ステータス変更に失敗した場合トーストでエラーを表示
+        if (!res.success) {
+            // 複数回同じ操作をした場合に毎回エラーメッセージが出るようにユニークIDを付与
+            toast.error(res.error || ERROR_MESSAGES[ERROR_CODES.UPDATE_SIGHTING_STATUS_FAILED], { id: `admin-action-error-${Date.now()}` });
+        }
+        else {
+            toast.success(successMessage);
+        }
+    };
 
     // 承認・却下ボタンハンドラ
-    const handleApprove = (id) => changePostStatus(id, SIGHTING_STATUS.APPROVED);
-    const handleReject = (id) => changePostStatus(id, SIGHTING_STATUS.REJECTED);
+    const handleApprove = (id) => handleChangePostStatus(id, {
+        status: SIGHTING_STATUS.APPROVED,
+        successMessage: '承認しました。',
+    });
+    const handleReject = (id) => handleChangePostStatus(id, {
+        status: SIGHTING_STATUS.REJECTED,
+        successMessage: '却下しました。',
+    });
 
     /**
      * 投稿を選択し、地図中心を該当座標に移動
@@ -64,13 +92,7 @@ function AdminPanel() {
         { key: 'type', label: '種類' },
         { key: 'date', label: '日時' },
         { key: 'note', label: '詳細' },
-    ]
-
-    useEffect(() => {
-        if (error) {
-            toast.error(error);
-        }
-    }, [error]);
+    ];
 
     useEffect(() => {
         // 承認・却下により、選択中の投稿が表示中の投稿一覧から外れた場合はInfoWindowを閉じる
