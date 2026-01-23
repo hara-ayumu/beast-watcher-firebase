@@ -1,6 +1,7 @@
 import { Navigate } from 'react-router-dom';
 
 import { useAuth } from '../hooks/useAuth'
+import AuthLoading from '../../common/components/AuthLoading';
 
 function ProtectedRoute({ children }) {
     const { user, authReady } = useAuth();
@@ -9,7 +10,7 @@ function ProtectedRoute({ children }) {
      * Firebase Authはページリロード時に非同期で認証状態を復元するため、
      * 状態確定前にリダイレクトが発生しないよう待機する
      */
-    if (!authReady) return <div>認証確認中...</div>;
+    if (!authReady) return <AuthLoading />;
 
     // 未ログインならログイン画面へ
     if (!user) return <Navigate to="/login" />
