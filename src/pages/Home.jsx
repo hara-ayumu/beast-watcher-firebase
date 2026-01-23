@@ -3,6 +3,7 @@ import { useState, useRef } from 'react';
 import { Toaster } from 'react-hot-toast';
 
 import PublicHeader from '../features/sightings/public/components/PublicHeader';
+import PageLoading from '../features/common/components/PageLoading';
 import Map from '../features/sightings/public/components/Map';
 import AddSightingForm from '../features/sightings/public/components/AddSightingForm';
 
@@ -69,14 +70,15 @@ function Home() {
         );
     }
 
-    if (loading) return <div>読み込み中...</div>;
-
     return (
         <div className="flex h-screen w-screen">
             {/* 画面上部にトースト通知表示 */}
             <Toaster
                 position="top-center"
             />
+
+            {/* ローディングオーバーレイ */}
+            {loading && <PageLoading />}
 
             {/* 一般ページ用ヘッダー */}
             <div
