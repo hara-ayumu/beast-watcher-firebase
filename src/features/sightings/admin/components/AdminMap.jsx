@@ -1,5 +1,6 @@
 import { GoogleMap, Marker, InfoWindow, useJsApiLoader } from '@react-google-maps/api';
 
+import MapLoading from '../../../common/components/MapLoading';
 import PostActionButtons from './PostActionButtons';
 
 import { ADMIN_MAP_INITIAL_ZOOM } from '../../constants/mapConstants';
@@ -31,51 +32,56 @@ function AdminMap({posts, selectedPost, setSelectedPost, onApprove, onReject, ma
             },
     });
 
-    if (!isLoaded) return <div>地図を読み込み中...</div>;
-
     return(
-        <GoogleMap
-            mapContainerStyle={{ width: '100%', height: '100%' }}
-            center={center}
-            zoom={ADMIN_MAP_INITIAL_ZOOM}
-            options={{
-                disableDefaultUI: true,
-                zoomControl: true,
-            }}
-            onLoad={(map) => setMapRef(map)}
-            onDragEnd={() => {
-                const newCenter = mapRef.getCenter();
-                setCenter({ lat: newCenter.lat(), lng: newCenter.lng() });
-            }}
-        >
-            {posts.map((post) => (
-                <Marker
-                    key={post.id}
-                    position={{ lat: post.lat, lng: post.lng }}
-                    icon={{ url: STATUS_MARKER_ICONS[post.status] }}
-                    title={post.type}
-                    onClick={() => setSelectedPost(post)}
-                />
-            ))}
-
-            {selectedPost && (
-                <InfoWindow
-                    position={{ lat: selectedPost.lat, lng: selectedPost.lng }}
-                    onCloseClick={() => setSelectedPost(null)}
+        <div className="relative w-full h-full">
+            {/* 地図読み込み中のオーバーレイ */}
+            {!isLoaded && <MapLoading />}
+            
+            {isLoaded && (
+                <GoogleMap
+                    mapContainerStyle={{ width: '100%', height: '100%' }}
+                    center={center}
+                    zoom={ADMIN_MAP_INITIAL_ZOOM}
+                    options={{
+                        disableDefaultUI: true,
+                        zoomControl: true,
+                    }}
+                    onLoad={(map) => setMapRef(map)}
+                    onDragEnd={() => {
+                        const newCenter = mapRef.getCenter();
+                        setCenter({ lat: newCenter.lat(), lng: newCenter.lng() });
+                    }}
                 >
-                    <div style={{ maxWidth: '200px' }}>
-                        <h3>{selectedPost.type} の目撃</h3>
-                        <p><strong>日時:</strong><br />{selectedPost.date}</p>
-                        <p><strong>詳細:</strong><br />{selectedPost.note}</p>
-                        <PostActionButtons
-                            status={selectedPost.status}
-                            onApprove={() => onApprove(selectedPost.id)}
-                            onReject={() => onReject(selectedPost.id)}
+                    {posts.map((post) => (
+                        <Marker
+                            key={post.id}
+                            position={{ lat: post.lat, lng: post.lng }}
+                            icon={{ url: STATUS_MARKER_ICONS[post.status] }}
+                            title={post.type}
+                            onClick={() => setSelectedPost(post)}
                         />
-                    </div>
-                </InfoWindow>
+                    ))}
+
+                    {selectedPost && (
+                        <InfoWindow
+                            position={{ lat: selectedPost.lat, lng: selectedPost.lng }}
+                            onCloseClick={() => setSelectedPost(null)}
+                        >
+                            <div style={{ maxWidth: '200px' }}>
+                                <h3>{selectedPost.type} の目撃</h3>
+                                <p><strong>日時:</strong><br />{selectedPost.date}</p>
+                                <p><strong>詳細:</strong><br />{selectedPost.note}</p>
+                                <PostActionButtons
+                                    status={selectedPost.status}
+                                    onApprove={() => onApprove(selectedPost.id)}
+                                    onReject={() => onReject(selectedPost.id)}
+                                />
+                            </div>
+                        </InfoWindow>
+                    )}
+                </GoogleMap>
             )}
-        </GoogleMap>
+        </div>
     );
 }
 
