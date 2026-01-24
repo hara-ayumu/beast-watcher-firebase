@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 
 import toast from 'react-hot-toast';
 
+import PageLoading from '../../../common/components/PageLoading';
 import AdminMap from './AdminMap';
 import Tabs from './Tabs';
 import DataGrid from './DataGrid';
@@ -129,10 +130,11 @@ function AdminPanel() {
         );
     }
 
-    if (loading) return <div>読み込み中...</div>;
-
     return (
-        <div className="flex w-full h-screen">
+        <div className="flex w-full h-screen relative">
+            {/* ローディングオーバーレイ */}
+            {loading && <PageLoading />}
+            
             {/* 左：Google Map */}
             <div className="w-1/2 h-full border-r">
                 <AdminMap
@@ -177,7 +179,7 @@ function AdminPanel() {
                 </div>
             </div>
         </div>
-    )
+    );
 }
 
 export default AdminPanel;
