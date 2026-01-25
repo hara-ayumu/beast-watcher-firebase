@@ -4,6 +4,7 @@ import { mapErrorToUiMessage } from '../../../utils/errorMapper';
 
 export const usePublicSightings = () => {
     const [ posts, setPosts ] = useState([]);
+    // 利用者画面ではMap領域のローディング表示だけで十分なため、投稿取得・追加のloadingを分けていない
     const [ loading, setLoading ] = useState(false);
     const [ error, setError ] = useState(null);
 

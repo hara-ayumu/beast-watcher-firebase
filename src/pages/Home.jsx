@@ -3,7 +3,7 @@ import { useState, useRef } from 'react';
 import { Toaster } from 'react-hot-toast';
 
 import PublicHeader from '../features/sightings/public/components/PublicHeader';
-import PageLoading from '../features/common/components/PageLoading';
+import MapLoading from '../features/common/components/MapLoading';
 import Map from '../features/sightings/public/components/Map';
 import AddSightingForm from '../features/sightings/public/components/AddSightingForm';
 
@@ -77,9 +77,6 @@ function Home() {
                 position="top-center"
             />
 
-            {/* ローディングオーバーレイ */}
-            {loading && <PageLoading />}
-
             {/* 一般ページ用ヘッダー */}
             <div
                 className={`
@@ -98,6 +95,9 @@ function Home() {
 
             {/* <h1>クマ・サル目撃マップ</h1> */}
             <div className="flex-1 relative">
+                {/* ローディングオーバーレイ（投稿取得・追加のloading） */}
+                {loading && <MapLoading />}
+
                 {/* GoogleMap */}
                 <Map
                     markers={markers}
@@ -154,7 +154,7 @@ function Home() {
                 />
             </div>
         </div>
-    )
+    );
 }
 
 export default Home;
