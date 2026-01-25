@@ -4,11 +4,12 @@ import { mapErrorToUiMessage } from '../../../utils/errorMapper';
 
 export const useAdminSightings = () => {
     const [ posts, setPosts ] = useState([]);
-    const [ loading, setLoading ] = useState(false);
+    const [ initialLoading, setInitialLoading ] = useState(false);
+    const [ updating, setUpdating ] = useState(false);
     const [ error, setError ] = useState(null);
 
     const loadPosts = async () => {
-        setLoading(true);
+        setInitialLoading(true);
         setError(null);
 
         try {
@@ -19,7 +20,7 @@ export const useAdminSightings = () => {
             setError(mapErrorToUiMessage(err));
         }
         finally {
-            setLoading(false);
+            setInitialLoading(false);
         }
     };
 
@@ -29,7 +30,7 @@ export const useAdminSightings = () => {
      * @returns {Promise<{success: boolean, error?: string}>}
      */
     const changePostStatus = async (id, status) => {
-        setLoading(true);
+        setUpdating(true);
         setError(null);
 
         try {
@@ -47,7 +48,7 @@ export const useAdminSightings = () => {
             return { success: false, error: message };
         }
         finally {
-            setLoading(false);
+            setUpdating(false);
         }
     };
 
@@ -55,5 +56,12 @@ export const useAdminSightings = () => {
         loadPosts();
     }, []);
 
-    return { posts, loading, error, loadPosts, changePostStatus };
+    return {
+        posts,
+        initialLoading,
+        updating,
+        error,
+        loadPosts,
+        changePostStatus
+    };
 };

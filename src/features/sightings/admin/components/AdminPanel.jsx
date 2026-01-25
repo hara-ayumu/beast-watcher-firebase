@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 
 import toast from 'react-hot-toast';
 
-import PageLoading from '../../../common/components/PageLoading';
+import PanelLoading from '../../../common/components/PanelLoading';
+import SectionLoading from './SectionLoading';
 import AdminMap from './AdminMap';
 import Tabs from './Tabs';
 import DataGrid from './DataGrid';
@@ -19,7 +20,7 @@ import { ERROR_CODES } from '../../constants/errorCodes';
  * - 投稿の一覧表示（ステータス別）
  * - 承認 / 却下操作
  * - 投稿の承認・却下後は一覧テーブルから自動的に削除され、InfoWindowを閉じる
- * @returns {JSX}
+ * @returns {JSX.Element}
  */
 function AdminPanel() {
 
@@ -30,7 +31,7 @@ function AdminPanel() {
 
     const [ activeTab, setActiveTab ] = useState(SIGHTING_STATUS.PENDING);
 
-    const { posts, loading, error, loadPosts, changePostStatus } = useAdminSightings();
+    const { posts, initialLoading, updating, error, loadPosts, changePostStatus } = useAdminSightings();
 
     // タブに応じてフィルタ
     const filteredPosts = posts
@@ -132,11 +133,13 @@ function AdminPanel() {
 
     return (
         <div className="flex w-full h-screen relative">
-            {/* ローディングオーバーレイ */}
-            {loading && <PageLoading />}
+            {/* 初回ロード時のローディングオーバーレイ（パネル全体） */}
+            {initialLoading && <PanelLoading />}
             
             {/* 左：Google Map */}
-            <div className="w-1/2 h-full border-r">
+            <div className="w-1/2 h-full border-r relative">
+                {/* 投稿ステータス更新中のローディング（AdminMap領域のみ） */}
+                {updating && <SectionLoading message="更新中..." />}
                 <AdminMap
                     posts={filteredPosts}
                     selectedPost={selectedPost}
@@ -162,7 +165,9 @@ function AdminPanel() {
                     onChange={handleTabChange}
                 />
 
-                <div className="flex-1 p-2 overflow-y-auto">
+                <div className="flex-1 p-2 overflow-y-auto relative">
+                    {/* 投稿ステータス更新中のローディング（DataGrid領域のみ） */}
+                    {updating && <SectionLoading message="更新中..." />}
                     <DataGrid
                         columns={columns}
                         data={filteredPosts}
