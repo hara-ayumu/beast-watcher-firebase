@@ -13,6 +13,7 @@ import { usePublicSightings } from '../features/sightings/public/hooks/usePublic
  * Home（利用者向けトップページ）
  * - 承認済みの目撃情報を地図上に表示
  * - 地図上で地点を選択し、目撃情報を投稿
+ * @returns {JSX.Element}
  */
 function Home() {
     const [ selectedLocation, setSelectedLocation ] = useState(null);
@@ -53,23 +54,6 @@ function Home() {
         }
     }
 
-    // 投稿の一覧の取得に失敗したときに再試行ボタンを表示
-    if (error && markers.length === 0) {
-        return (
-            <div className="p-4">
-                <div className="bg-red-100 border border-red-300 text-red-800 p-4 rounded mb-4">
-                    <p>{error}</p>
-                </div>
-                <button
-                    className="px-4 py-2 bg-blue-500 text-white rounded"
-                    onClick={() => loadPosts()}
-                >
-                    再試行
-                </button>
-            </div>
-        );
-    }
-
     return (
         <div className="flex h-screen w-screen">
             {/* 画面上部にトースト通知表示 */}
@@ -97,7 +81,24 @@ function Home() {
             <div className="flex-1 relative">
                 {/* ローディングオーバーレイ（投稿取得・追加のloading） */}
                 {loading && <MapLoading />}
-
+                
+                {/* 投稿の一覧の取得に失敗したときに再試行ボタンを表示 */}
+                {error && markers.length === 0 && (
+                    <div className="absolute inset-0 bg-white bg-opacity-95 flex items-center justify-center z-50">
+                        <div className="text-center p-4">
+                            <div className="bg-red-100 border border-red-300 text-red-800 p-4 rounded mb-4">
+                                <p>{error}</p>
+                            </div>
+                            <button
+                                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                                onClick={() => loadPosts()}
+                            >
+                                再試行
+                            </button>
+                        </div>
+                    </div>
+                )}
+                
                 {/* GoogleMap */}
                 <Map
                     markers={markers}

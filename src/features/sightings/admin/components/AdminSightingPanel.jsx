@@ -22,7 +22,7 @@ import { ERROR_CODES } from '../../constants/errorCodes';
  * - 投稿の承認・却下後は一覧テーブルから自動的に削除され、InfoWindowを閉じる
  * @returns {JSX.Element}
  */
-function AdminPanel() {
+function AdminSightingPanel() {
 
     // 選択中のマーカー(InfoWindow表示用)
     const [ selectedPost, setSelectedPost ] = useState(null);
@@ -114,28 +114,28 @@ function AdminPanel() {
         }
     }, [selectedPost, mapRef]);
 
-    // 投稿の一覧の取得に失敗したときに再試行ボタンを表示
-    if (error && posts.length === 0) {
-        return (
-            <div className="p-4">
-                <div className="bg-red-100 border border-red-300 text-red-800 p-4 rounded mb-4">
-                    <p>{error}</p>
-                </div>
-                <button
-                    className="px-4 py-2 bg-blue-500 text-white rounded"
-                    onClick={() => loadPosts()}
-                >
-                    再試行
-                </button>
-            </div>
-        );
-    }
-
     return (
         <div className="flex w-full h-screen relative">
             {/* 初回ロード時のローディングオーバーレイ（パネル全体） */}
             {initialLoading && <PanelLoading />}
             
+            {/* 投稿の一覧の取得に失敗したときに再試行ボタンを表示 */}
+            {error && posts.length === 0 && (
+                <div className="absolute inset-0 bg-white bg-opacity-95 flex items-center justify-center z-50">
+                    <div className="text-center p-4">
+                        <div className="bg-red-100 border border-red-300 text-red-800 p-4 rounded mb-4">
+                            <p>{error}</p>
+                        </div>
+                        <button
+                            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                            onClick={() => loadPosts()}
+                        >
+                            再試行
+                        </button>
+                    </div>
+                </div>
+            )}
+
             {/* 左：Google Map */}
             <div className="w-1/2 h-full border-r relative">
                 {/* 投稿ステータス更新中のローディング（AdminMap領域のみ） */}
@@ -187,4 +187,4 @@ function AdminPanel() {
     );
 }
 
-export default AdminPanel;
+export default AdminSightingPanel;
