@@ -119,7 +119,7 @@ function AdminSightingPanel() {
             {/* 初回ロード時のローディングオーバーレイ（パネル全体） */}
             {initialLoading && <PanelLoading />}
             
-            {/* 投稿の一覧の取得に失敗したときに再試行ボタンを表示 */}
+            {/* 初回取得、または未取得状態でエラーになった場合は地図をオーバーレイ、再試行ボタンを表示する */}
             {error && posts.length === 0 && (
                 <div className="absolute inset-0 bg-white bg-opacity-95 flex items-center justify-center z-50">
                     <div className="text-center p-4">
@@ -131,6 +131,20 @@ function AdminSightingPanel() {
                             onClick={() => loadPosts()}
                         >
                             再試行
+                        </button>
+                    </div>
+                </div>
+            )}
+            {/* 既に目撃情報を表示できている状態で再取得に失敗した場合は既存表示を維持したまま再試行ボタンを表示する */}
+            {error && posts.length > 0 && (
+                <div className="absolute top-1/3 left-1/2 transform -translate-x-1/2 z-50">
+                    <div className="bg-red-100 border border-red-300 text-red-800 p-4 rounded shadow-lg">
+                        <p className="mb-2">{error}</p>
+                        <button
+                            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                            onClick={() => loadPosts()}
+                        >
+                            再読み込み
                         </button>
                     </div>
                 </div>
