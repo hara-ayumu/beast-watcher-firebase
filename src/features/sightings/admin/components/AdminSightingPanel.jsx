@@ -16,7 +16,7 @@ import { ERROR_MESSAGES } from '../../constants/errorMessages';
 import { ERROR_CODES } from '../../constants/errorCodes';
 
 /**
- * 管理者向け投稿管理パネル
+ * 管理者用投稿管理パネル
  * - 投稿の一覧表示（ステータス別）
  * - 承認 / 却下操作
  * - 投稿の承認・却下後は一覧テーブルから自動的に削除され、InfoWindowを閉じる
@@ -115,7 +115,7 @@ function AdminSightingPanel() {
     }, [selectedPost, mapRef]);
 
     return (
-        <div className="flex w-full h-screen relative">
+        <div className="flex w-full flex-1 min-h-0 relative">
             {/* 初回ロード時のローディングオーバーレイ（パネル全体） */}
             {initialLoading && <PanelLoading />}
             
@@ -179,7 +179,7 @@ function AdminSightingPanel() {
                     onChange={handleTabChange}
                 />
 
-                <div className="flex-1 p-2 overflow-y-auto relative">
+                <div className="flex-1 p-2 relative min-h-0">
                     {/* 投稿ステータス更新中のローディング（DataGrid領域のみ） */}
                     {updating && <SectionLoading message="更新中..." />}
                     <DataGrid
