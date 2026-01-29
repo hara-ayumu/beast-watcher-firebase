@@ -35,6 +35,7 @@ function Map({ markers, onMapClick, selectedLocation }) {
                     options={{
                         disableDefaultUI: true,
                         zoomControl: true,
+                        gestureHandling: 'greedy',
                     }}
                     onClick={(e) => {
                         const lat = e.latLng.lat();

@@ -25,11 +25,11 @@ import { STATUS_MARKER_ICONS } from '../../constants/markerIcons';
  */
 function AdminMap({posts, selectedPost, setSelectedPost, onApprove, onReject, mapRef, setMapRef, center, setCenter}) {
     const { isLoaded } = useJsApiLoader({
-            googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
-            language: 'ja',
-            googleMapsClientOptions: {
-                version: 'quarterly',
-            },
+        googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
+        language: 'ja',
+        googleMapsClientOptions: {
+            version: 'quarterly',
+        },
     });
 
     return(
@@ -45,6 +45,7 @@ function AdminMap({posts, selectedPost, setSelectedPost, onApprove, onReject, ma
                     options={{
                         disableDefaultUI: true,
                         zoomControl: true,
+                        gestureHandling: 'greedy',
                     }}
                     onLoad={(map) => setMapRef(map)}
                     onDragEnd={() => {
