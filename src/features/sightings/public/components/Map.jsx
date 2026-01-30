@@ -41,6 +41,15 @@ function Map({ markers, onMapClick, selectedLocation }) {
                         disableDefaultUI: true,
                         zoomControl: true,
                         gestureHandling: 'greedy',
+                        clickableIcons: false,
+                        styles: [
+                            {
+                                featureType: 'poi',
+                                stylers: [
+                                    { visibility: 'off' }
+                                ]
+                            }
+                        ],
                     }}
                     onClick={(e) => {
                         const lat = e.latLng.lat();

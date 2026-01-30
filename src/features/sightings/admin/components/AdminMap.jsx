@@ -46,6 +46,7 @@ function AdminMap({posts, selectedPost, setSelectedPost, onApprove, onReject, ma
                         disableDefaultUI: true,
                         zoomControl: true,
                         gestureHandling: 'greedy',
+                        clickableIcons: false,
                     }}
                     onLoad={(map) => setMapRef(map)}
                     onDragEnd={() => {
