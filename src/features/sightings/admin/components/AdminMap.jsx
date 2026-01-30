@@ -7,20 +7,20 @@ import { ADMIN_MAP_INITIAL_ZOOM } from '../../constants/mapConstants';
 import { STATUS_MARKER_ICONS } from '../../constants/markerIcons';
 
 /**
- * 管理者向けマップコンポーネント
+ * 管理者画面用マップコンポーネント
  * - 投稿データをマーカーで表示
  * - マーカー選択で InfoWindow 表示
  * - InfoWindow 内で承認/却下が可能
  * - Map の中心(center)や参照(mapRef)を親コンポーネントと同期
- * @param {Array} posts - 投稿データ一覧
- * @param {Object} selectedPost - 選択中の投稿
- * @param {Function} setSelectedPost - 選択投稿を更新
- * @param {Function} onApprove - 投稿承認ハンドラ
- * @param {Function} onReject - 投稿却下ハンドラ
- * @param {Object} mapRef - GoogleMap インスタンス
- * @param {Function} setMapRef - GoogleMap インスタンスをセット
- * @param {Object} center - 地図中心
- * @param {Function} setCenter - 地図中心を更新
+ * @param {{ id: string, date: string, lat: number, lng: number, note: string, status: string, type: string }[]} posts - 投稿データ一覧
+ * @param {{ id: string, date: string, lat: number, lng: number, note: string, status: string, type: string } | null} selectedPost - 選択中の投稿
+ * @param {(post: Object | null) => void} setSelectedPost - 選択投稿を更新する関数
+ * @param {(id: string) => void} onApprove - 投稿承認ハンドラ
+ * @param {(id: string) => void} onReject - 投稿却下ハンドラ
+ * @param {google.maps.Map | null} mapRef - GoogleMap インスタンス
+ * @param {(map: google.maps.Map) => void} setMapRef - GoogleMap インスタンスをセットする関数
+ * @param {{ lat: number, lng: number }} center - 地図中心
+ * @param {(center: { lat: number, lng: number }) => void} setCenter - 地図中心を更新する関数
  * @returns {JSX.Element}
  */
 function AdminMap({posts, selectedPost, setSelectedPost, onApprove, onReject, mapRef, setMapRef, center, setCenter}) {
