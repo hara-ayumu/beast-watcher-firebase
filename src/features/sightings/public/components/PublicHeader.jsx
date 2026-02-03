@@ -5,7 +5,14 @@ import HeaderButtonLink from '../../../common/components/HeaderButtonLink';
 
 import { useAuth } from '../../../auth/hooks/useAuth'
 
-function PublicHeader({ expanded, onToggle }) {
+/**
+ * 利用者画面ヘッダー
+ * - 常時表示の固定ヘッダー
+ * - PC：右側にリンク表示
+ * - SP：ハンバーガーメニュー
+ * @returns {JSX.Element}
+ */
+function PublicHeader() {
     const [ isMenuOpen, setIsMenuOpen ] = useState(false);
     const { user } = useAuth();
 
@@ -32,16 +39,13 @@ function PublicHeader({ expanded, onToggle }) {
             <div className="md:hidden relative">
                 <button
                     className="p-2"
-                    onClick={(e) => {
-                        e.stopPropagation(); // ヘッダー展開トグルを防ぐ
-                        setIsMenuOpen(prev => !prev);
-                    }}
+                    onClick={() => setIsMenuOpen(prev => !prev)}
                 >
                     {isMenuOpen ? '✕' : '☰'}
                 </button>
 
                 {isMenuOpen && (
-                    <div className="absolute right-0 mt-2 w-40 bg-white border rounded shadow-lg z-20">
+                    <div className="absolute right-0 mt-2 w-40 bg-white border rounded shadow-lg z-30">
                         {menuItems.map(item => (
                             <HeaderButtonLink
                                 key={item.label}
@@ -59,30 +63,10 @@ function PublicHeader({ expanded, onToggle }) {
     );
 
     return (
-        <div
-            onClick={onToggle}
-            className={`
-                transition-all duration-300 bg-white shadow-lg
-                ${expanded
-                    ? 'w-full'
-                    : 'w-14 h-14 rounded-lg flex items-center justify-center'
-                }
-            `}
-        >
-            {/* 展開時：通常ヘッダー */}
-            {expanded ? (
-                <HeaderBase
-                    title="Beast Watcher"
-                    right={rightContent}
-                />
-            ) : (
-                /* 最小化時：コンパクトUI */
-                <div className="flex flex-col items-center justify-center text-sm font-semibold">
-                    <span>BW</span>
-                    <span className="text-lg leading-none">☰</span>
-                </div>
-            )}
-        </div>
+        <HeaderBase
+            title="Beast Watcher"
+            right={rightContent}
+        />
     );
 }
 
