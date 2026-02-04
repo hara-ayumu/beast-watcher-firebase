@@ -1,9 +1,11 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 
+import Modal from 'react-modal'
 import { Toaster } from 'react-hot-toast';
 
-import PublicHeader from '../features/sightings/public/components/PublicHeader';
 import MapLoading from '../features/common/components/MapLoading';
+
+import PublicHeader from '../features/sightings/public/components/PublicHeader';
 import Map from '../features/sightings/public/components/Map';
 import AddSightingForm from '../features/sightings/public/components/AddSightingForm';
 
@@ -17,11 +19,7 @@ import { usePublicSightings } from '../features/sightings/public/hooks/usePublic
  */
 function Home() {
     const [ selectedLocation, setSelectedLocation ] = useState(null);
-    const [ sheetOpen, setSheetOpen ] = useState(false);
-
-    // ドラッグハンドルに使用
-    const startYRef = useRef(0);
-    const draggingRef = useRef(false);
+    const [ isSightingFormOpen, setIsSightingFormOpen ] = useState(false);
 
     const { posts: markers, loading, error, loadPosts } = usePublicSightings();
 
@@ -29,26 +27,7 @@ function Home() {
     const handleUpdate = () => {
         loadPosts();
         setSelectedLocation(null);
-        setSheetOpen(false);
-    };
-
-    // ボトムシートドラッグ処理
-    const touchHandlers = {
-        start: (e) => {
-            startYRef.current = e.touches[0].clientY;
-            draggingRef.current = true;
-        },
-        move: (e) => {
-            if (!draggingRef.current) return;
-            const currentY = e.touches[0].clientY;
-            if (currentY - startYRef.current > 30) {
-                setSheetOpen(false);
-                draggingRef.current = false;
-            }
-        },
-        end: () => {
-            draggingRef.current = false;
-        }
+        setIsSightingFormOpen(false);
     };
 
     // 目撃カウンターに表示する文字列
@@ -117,60 +96,59 @@ function Home() {
                         {counterLabel}
                     </div>
                     
-                    {/* スマホ：＋ボタン */}
-                    <button
-                        className="absolute bottom-5 right-15 w-14 h-14 rounded-full bg-orange-500 text-white text-2xl flex items-center justify-center shadow-lg md:hidden"
-                        style={{ bottom: 'calc(1.25rem + env(safe-area-inset-bottom))' }}
-                        onClick={() => setSheetOpen(true)}
-                    >
-                        ＋
-                    </button>
-
-                    {/* スマホ：Bottom Sheet */}
-                    <div
-                        className={`fixed left-0 bottom-0 w-full bg-white p-4 shadow-xl rounded-t-2xl transition-transform duration-300 z-20 md:hidden ${
-                            sheetOpen ? 'translate-y-0' : 'translate-y-full'
-                        }`}
-                        style={{
-                            bottom: 'env(safe-area-inset-bottom)',
-                            maxHeight: '60vh',
-                            overflowY: 'auto'
-                        }}
-                    >
-                        {/* ドラッグハンドル */}
-                        <div
-                            className="w-10 h-1.5 bg-gray-400 rounded mx-auto mb-2"
-                            onTouchStart={touchHandlers.start}
-                            onTouchMove={touchHandlers.move}
-                            onTouchEnd={touchHandlers.end}
-                        ></div>
-
-                        {/* ヘッダー */}
-                        <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-lg font-semibold">目撃情報を投稿</h3>
+                    {/* 投稿予定地点選択後のみ表示されるボタン */}
+                    {selectedLocation && !isSightingFormOpen && (
+                        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20">
                             <button
-                                className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 text-gray-700 text-2x1 shadow"
-                                onClick={() => setSheetOpen(false)}
+                                className="px-6 py-3 bg-orange-500 text-white rounded-full shadow-lg"
+                                onClick={() => setIsSightingFormOpen(true)}
                             >
-                                ×
+                                この場所の目撃情報を投稿
                             </button>
                         </div>
+                    )}
+                </div>
+            </div>
+
+            {/* 投稿フォームモーダル */}
+            <Modal
+                isOpen={isSightingFormOpen && !!selectedLocation}
+                onRequestClose={() => setIsSightingFormOpen(false)}
+                shouldCloseOnOverlayClick={true}
+                shouldCloseOnEsc={true}
+                overlayClassName="fixed inset-0 bg-black/40 flex items-center justify-center z-40"
+                className="bg-white w-[95%] max-w-md max-h-[90vh] overflow-y-auto rounded-xl p-4 relative outline-none"
+            >
+                {selectedLocation && (
+                    <>
+                        <button
+                            className="absolute top-2 right-2 text-xl"
+                            onClick={() => setIsSightingFormOpen(false)}
+                        >
+                            ×
+                        </button>
+
+                        <div className="mb-3 text-sm text-gray-600">
+                            <p className="font-medium">選択地点</p>
+                            <p>緯度: {selectedLocation.lat.toFixed(5)}</p>
+                            <p>経度: {selectedLocation.lng.toFixed(5)}</p>
+                            <button
+                                className="text-blue-600 underline mt-1"
+                                onClick={() => setIsSightingFormOpen(false)}
+                            >
+                                地点を変更する
+                            </button>
+                        </div>
+
+                        <h3 className="text-lg font-semibold mb-2">目撃情報を投稿</h3>
+
                         <AddSightingForm
                             selectedLocation={selectedLocation}
                             onSubmit={handleUpdate}
                         />
-                    </div>
-                </div>
-
-                {/* PC：右側サイドフォーム */}
-                <div className="hidden md:block w-80 bg-white p-4 border-l h-full overflow-auto">
-                    <h3 className="text-lg font-semibold mb-4">目撃情報を投稿</h3>
-                    <AddSightingForm
-                        selectedLocation={selectedLocation}
-                        onSubmit={handleUpdate}
-                    />
-                </div>
-            </div>
+                    </>
+                )}
+            </Modal>
         </div>
     );
 }
