@@ -38,7 +38,7 @@ function AdminSightingPanel() {
         .filter((post) => post.status === activeTab)
         .map((post) => ({
             ...post,
-            date: post.date ? post.date.toDate().toLocaleString() : '',
+            sighted_at: post.sighted_at ? post.sighted_at.toDate().toLocaleString() : '',
         }));
 
     // タブ切り替え時に InfoWindow を閉じる
@@ -91,8 +91,8 @@ function AdminSightingPanel() {
 
     // DataGridに渡すカラム
     const columns = [
-        { key: 'type', label: '種類' },
-        { key: 'date', label: '日時' },
+        { key: 'animal_type', label: '種類' },
+        { key: 'sighted_at', label: '目撃日時' },
         { key: 'note', label: '詳細' },
     ];
 

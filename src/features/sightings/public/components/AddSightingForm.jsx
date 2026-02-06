@@ -8,8 +8,8 @@ import { ERROR_MESSAGES } from '../../constants/errorMessages';
 import { ERROR_CODES } from '../../constants/errorCodes';
 
 function AddSightingForm({ selectedLocation, onSubmit }) {
-    const [ type, setType ] = useState('');
-    const [ date, setDate ] = useState('');
+    const [ animal_type, setAnimalType ] = useState('');
+    const [ sighted_at, setSightedAt ] = useState('');
     const [ note, setNote ] = useState('');
     const [ message, setMessage ] = useState('');
 
@@ -24,8 +24,8 @@ function AddSightingForm({ selectedLocation, onSubmit }) {
         }
 
         const postData = {
-            type,
-            date: new Date(date),
+            animal_type,
+            sighted_at: new Date(sighted_at),
             note,
             lat: selectedLocation.lat,
             lng: selectedLocation.lng,
@@ -37,8 +37,8 @@ function AddSightingForm({ selectedLocation, onSubmit }) {
             // 成功時トースト表示
             toast.success('投稿が送信されました。（承認待ち）');
 
-            setType('');
-            setDate('');
+            setAnimalType('');
+            setSightedAt('');
             setNote('');
             setMessage('');
             onSubmit?.();
@@ -55,8 +55,8 @@ function AddSightingForm({ selectedLocation, onSubmit }) {
                 種類：
                 <select
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
-                    value={type}
-                    onChange={(e) => setType(e.target.value)}
+                    value={animal_type}
+                    onChange={(e) => setAnimalType(e.target.value)}
                     required
                 >
                     <option value="">-- 選択してください --</option>
@@ -73,8 +73,8 @@ function AddSightingForm({ selectedLocation, onSubmit }) {
                 <input
                     type="datetime-local" 
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
+                    value={sighted_at}
+                    onChange={(e) => setSightedAt(e.target.value)}
                     required
                 />
             </label>
@@ -97,7 +97,7 @@ function AddSightingForm({ selectedLocation, onSubmit }) {
             </button>
             <p style={{ color: 'red' }}>{message}</p>
         </form>
-    )
+    );
 }
 
 export default AddSightingForm;

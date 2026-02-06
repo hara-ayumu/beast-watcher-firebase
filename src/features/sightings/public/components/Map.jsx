@@ -11,7 +11,7 @@ import MapLoading from '../../../common/components/MapLoading';
  * - 目撃情報(status: approved のみ)をマーカーで表示
  * - マーカー選択で InfoWindow 表示
  * - 地図クリックで投稿予定地点を選択し、親コンポーネントに通知
- * @param {{ id: string, date: import('firebase/firestore').Timestamp, lat: number, lng: number, note: string, status: string, type: string }[]} markers - 目撃情報一覧
+ * @param {{ id: string, animal_type: string, sighted_at: import('firebase/firestore').Timestamp, lat: number, lng: number, note: string }[]} markers - 目撃情報一覧
  * @param {(location: { lat: number, lng: number }) => void} onMapClick - 地図クリック時に選択した座標を親コンポーネントに通知
  * @param {{ lat: number, lng: number } | null} selectedLocation - 投稿予定地点を示す仮マーカーの座標
  * @returns {JSX.Element}
@@ -62,7 +62,7 @@ function Map({ markers, onMapClick, selectedLocation }) {
                         <Marker
                             key={index}
                             position={{ lat: marker.lat, lng: marker.lng }}
-                            title={marker.type}
+                            title={marker.animal_type}
                             onClick={() => setSelectedMarker(marker)}
                         />
                     ))}
@@ -81,8 +81,8 @@ function Map({ markers, onMapClick, selectedLocation }) {
                             onCloseClick={() => setSelectedMarker(null)}
                         >
                             <div style={{ maxWidth: '200px' }}>
-                                <h3>{selectedMarker.type} の目撃</h3>
-                                <p><strong>日時:</strong><br />{selectedMarker.date?.toDate().toLocaleString()}</p>
+                                <h3>{selectedMarker.animal_type} の目撃</h3>
+                                <p><strong>日時:</strong><br />{selectedMarker.sighted_at?.toDate().toLocaleString()}</p>
                                 <p><strong>詳細:</strong><br />{selectedMarker.note}</p>
                             </div>
                         </InfoWindow>

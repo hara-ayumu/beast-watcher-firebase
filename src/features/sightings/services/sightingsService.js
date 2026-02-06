@@ -1,4 +1,4 @@
-import { collection, getDocs, addDoc, updateDoc, doc, query, where, orderBy, Timestamp } from 'firebase/firestore';
+import { collection, getDocs, addDoc, updateDoc, doc, query, where, orderBy, Timestamp, serverTimestamp } from 'firebase/firestore';
 import { db } from '../../auth/firebase';
 import { SIGHTING_STATUS } from '../constants/sightingStatus';
 import { ERROR_CODES } from '../constants/errorCodes';
@@ -22,9 +22,19 @@ const handleAndWrap = (code, originalError) => {
 export const createSighting = async (data) => {
     try {
         const payload = {
-            ...data,
-            date: data.date instanceof Date ? Timestamp.fromDate(data.date) : data.date,
+            animal_type: data.animal_type,
+            sighted_at: data.sighted_at instanceof Date ? Timestamp.fromDate(data.sighted_at) : data.sighted_at,
+            lat: data.lat,
+            lng: data.lng,
+            note: data.note || '',
+
+            created_at: serverTimestamp(),
+            created_by: null,
+
             status: SIGHTING_STATUS.PENDING,
+            reviewed_at: null,
+            reviewed_by: null,
+            review_comment: null,
         };
         return await addDoc(collection(db, 'sightings'), payload);
     }
@@ -42,7 +52,7 @@ export const fetchPublicSightings = async () => {
         const sightingsQuery = query(
             collection(db, 'sightings'),
             where('status', '==', SIGHTING_STATUS.APPROVED),
-            orderBy('date', 'desc')
+            orderBy('sighted_at', 'desc')
         );
 
         const snapshot = await getDocs(sightingsQuery);
@@ -62,7 +72,7 @@ export const fetchAllSightings = async () => {
     try {
         const sightingsQuery = query(
             collection(db, 'sightings'),
-            orderBy('date', 'desc')
+            orderBy('sighted_at', 'desc')
         );
 
         const snapshot = await getDocs(sightingsQuery);
@@ -78,10 +88,15 @@ export const fetchAllSightings = async () => {
 /**
  * 管理者用: 投稿ステータス更新
  */
-export const updateSightingStatus = async (id, status) => {
+export const updateSightingStatus = async (id, status, reviewComment = '', adminUser = null) => {
     try {
         const ref = doc(db, 'sightings', id);
-        await updateDoc(ref, { status });
+        await updateDoc(ref, {
+            status,
+            reviewed_at: serverTimestamp(),
+            reviewed_by: adminUser?.uid || null,
+            review_comment: reviewComment || null,
+        });
     }
     catch (err) {
         throw handleAndWrap(ERROR_CODES.UPDATE_SIGHTING_STATUS_FAILED, err);
