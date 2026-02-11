@@ -8,8 +8,10 @@ import AdminMap from './AdminMap';
 import Tabs from './Tabs';
 import DataGrid from './DataGrid';
 import PostActionButtons from './PostActionButtons';
+import ReviewConfirmModal from './ReviewConfirmModal';
 
 import { useAdminSightings } from '../hooks/useAdminSightings';
+import { useAuth } from '../../../auth/hooks/useAuth';
 import { DEFAULT_MAP_CENTER } from '../../constants/mapConstants';
 import { SIGHTING_STATUS } from '../../constants/sightingStatus';
 import { ERROR_MESSAGES } from '../../constants/errorMessages';
@@ -18,8 +20,8 @@ import { ERROR_CODES } from '../../constants/errorCodes';
 /**
  * 管理者用投稿管理パネル
  * - 投稿の一覧表示（ステータス別）
- * - 承認 / 却下操作
- * - 投稿の承認・却下後は一覧テーブルから自動的に削除され、InfoWindowを閉じる
+ * - 承認 / 却下のレビュー操作
+ * - 投稿の承認・却下後は一覧テーブルおよび地図のマーカーを更新する
  * @returns {JSX.Element}
  */
 function AdminSightingPanel() {
@@ -30,8 +32,13 @@ function AdminSightingPanel() {
     const [ center, setCenter ] = useState(DEFAULT_MAP_CENTER);
 
     const [ activeTab, setActiveTab ] = useState(SIGHTING_STATUS.PENDING);
+    
+    const [ reviewPost, setReviewPost ] = useState(null);
+    const [ nextStatus, setNextStatus ] = useState(null);
+    const [ isReviewModalOpen, setIsReviewModalOpen ] = useState(false);
 
-    const { posts, initialLoading, updating, error, loadPosts, changePostStatus } = useAdminSightings();
+    const { posts, initialLoading, updating, error, loadPosts, submitReview } = useAdminSightings();
+    const { user } = useAuth();
 
     // タブに応じてフィルタ
     const filteredPosts = posts
@@ -48,34 +55,40 @@ function AdminSightingPanel() {
     };
 
     /**
-     * 投稿ステータスを変更する共通関数
-     * @param {string} id - 投稿の一意のID 
-     * @param {Object} params - ステータス変更に関するパラメータ
-     * @param {string} params.status - 新しいステータス（承認、却下など）
-     * @param {string} params.successMessage - ステータス変更成功時に表示するメッセージ
+     * レビュー確定時の処理を行う
+     * - 投稿ステータスを更新し、レビューを記録する
+     * - 成功/失敗に応じてトーストで通知
+     * - 処理完了後にレビュー用モーダルを閉じる
+     * @param {Object} params - レビュー情報
+     * @param {'approved'|'rejected'} params.status - 変更後のステータス
+     * @param {string} params.reviewComment - レビューコメント（却下時は空でない文字列、承認時は空文字列も可）
      * @returns {Promise<void>}
      */
-    const handleChangePostStatus = async (id, { status, successMessage }) => {
-        const res = await changePostStatus(id, status);
+    const handleSubmitReview = async ({ status, reviewComment }) => {
+        const res = await submitReview(reviewPost.id, {
+            status,
+            reviewComment,
+            reviewedBy: user,
+        });
         // 投稿ステータス変更に失敗した場合トーストでエラーを表示
         if (!res.success) {
             // 複数回同じ操作をした場合に毎回エラーメッセージが出るようにユニークIDを付与
-            toast.error(res.error || ERROR_MESSAGES[ERROR_CODES.UPDATE_SIGHTING_STATUS_FAILED], { id: `admin-action-error-${Date.now()}` });
+            toast.error(res.error || ERROR_MESSAGES[ERROR_CODES.REVIEW_SIGHTING_FAILED], { id: `admin-action-error-${Date.now()}` });
         }
         else {
-            toast.success(successMessage);
+            toast.success(status === SIGHTING_STATUS.APPROVED ? '承認しました。' : '却下しました。');
         }
+
+        setReviewPost(null);
+        setNextStatus(null);
+        setIsReviewModalOpen(false);
     };
 
-    // 承認・却下ボタンハンドラ
-    const handleApprove = (id) => handleChangePostStatus(id, {
-        status: SIGHTING_STATUS.APPROVED,
-        successMessage: '承認しました。',
-    });
-    const handleReject = (id) => handleChangePostStatus(id, {
-        status: SIGHTING_STATUS.REJECTED,
-        successMessage: '却下しました。',
-    });
+    const openReviewModal = (post, status) => {
+        setReviewPost(post);
+        setNextStatus(status);
+        setIsReviewModalOpen(true)
+    };
 
     /**
      * 投稿を選択し、地図中心を該当座標に移動
@@ -94,6 +107,7 @@ function AdminSightingPanel() {
         { key: 'animal_type', label: '種類' },
         { key: 'sighted_at', label: '目撃日時' },
         { key: 'note', label: '詳細' },
+        { key: 'review_comment', label: '判定理由' },
     ];
 
     useEffect(() => {
@@ -158,8 +172,8 @@ function AdminSightingPanel() {
                     posts={filteredPosts}
                     selectedPost={selectedPost}
                     setSelectedPost={setSelectedPost}
-                    onApprove={handleApprove}
-                    onReject={handleReject}
+                    onApprove={(post) => openReviewModal(post, SIGHTING_STATUS.APPROVED)}
+                    onReject={(post) => openReviewModal(post, SIGHTING_STATUS.REJECTED)}
                     mapRef={mapRef}
                     setMapRef={setMapRef}
                     center={center}
@@ -190,13 +204,25 @@ function AdminSightingPanel() {
                         rowActions={(row) => (
                             <PostActionButtons
                                 status={row.status}
-                                onApprove={() => handleApprove(row.id)}
-                                onReject={() => handleReject(row.id)}
+                                onApprove={() => openReviewModal(row, SIGHTING_STATUS.APPROVED)}
+                                onReject={() => openReviewModal(row, SIGHTING_STATUS.REJECTED)}
                             />
                         )}
                     />
                 </div>
             </div>
+
+            <ReviewConfirmModal
+                isOpen={isReviewModalOpen}
+                post={reviewPost}
+                nextStatus={nextStatus}
+                onSubmit={handleSubmitReview}
+                onCancel={() => {
+                    setReviewPost(null);
+                    setNextStatus(null);
+                    setIsReviewModalOpen(false);
+                }}
+            />
         </div>
     );
 }

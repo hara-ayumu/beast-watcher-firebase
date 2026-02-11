@@ -86,19 +86,35 @@ export const fetchAllSightings = async () => {
 };
 
 /**
- * 管理者用: 投稿ステータス更新
+ * 管理者用: 投稿更新
  */
-export const updateSightingStatus = async (id, status, reviewComment = '', adminUser = null) => {
+export const updateSighting = async (id, patch) => {
+    try {
+        const ref = doc(db, 'sightings', id);
+        await updateDoc(ref, patch);
+    }
+    catch (err) {
+        throw handleAndWrap(ERROR_CODES.UPDATE_SIGHTING_FAILED, err);
+    }
+};
+
+/**
+ * 管理者用: 投稿のレビューを更新する
+ * @param {string} id - 投稿ID
+ * @param {{ status: string, review_comment: string, reviewed_by: string }} data - レビューデータ
+ * @returns {Promise<void>}
+ */
+export const reviewSighting = async (id, { status, review_comment, reviewed_by }) => {
     try {
         const ref = doc(db, 'sightings', id);
         await updateDoc(ref, {
             status,
+            review_comment,
+            reviewed_by,
             reviewed_at: serverTimestamp(),
-            reviewed_by: adminUser?.uid || null,
-            review_comment: reviewComment || null,
         });
     }
     catch (err) {
-        throw handleAndWrap(ERROR_CODES.UPDATE_SIGHTING_STATUS_FAILED, err);
+        throw handleAndWrap(ERROR_CODES.REVIEW_SIGHTING_FAILED, err);
     }
 };

@@ -15,8 +15,8 @@ import { STATUS_MARKER_ICONS } from '../../constants/markerIcons';
  * @param {{ id: string, animal_type: string, sighted_at: string, lat: number, lng: number, note: string, status: string }[]} posts - 投稿データ一覧
  * @param {{ id: string, animal_type: string, sighted_at: string, lat: number, lng: number, note: string, status: string } | null} selectedPost - 選択中の投稿
  * @param {(post: Object | null) => void} setSelectedPost - 選択投稿を更新する関数
- * @param {(id: string) => void} onApprove - 投稿承認ハンドラ
- * @param {(id: string) => void} onReject - 投稿却下ハンドラ
+ * @param {(post: Object) => void} onApprove - 投稿承認ハンドラ
+ * @param {(post: Object) => void} onReject - 投稿却下ハンドラ
  * @param {google.maps.Map | null} mapRef - GoogleMap インスタンス
  * @param {(map: google.maps.Map) => void} setMapRef - GoogleMap インスタンスをセットする関数
  * @param {{ lat: number, lng: number }} center - 地図中心
@@ -75,8 +75,8 @@ function AdminMap({posts, selectedPost, setSelectedPost, onApprove, onReject, ma
                                 <p><strong>詳細:</strong><br />{selectedPost.note}</p>
                                 <PostActionButtons
                                     status={selectedPost.status}
-                                    onApprove={() => onApprove(selectedPost.id)}
-                                    onReject={() => onReject(selectedPost.id)}
+                                    onApprove={() => onApprove(selectedPost)}
+                                    onReject={() => onReject(selectedPost)}
                                 />
                             </div>
                         </InfoWindow>
