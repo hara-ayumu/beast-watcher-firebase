@@ -1,4 +1,4 @@
-import { collection, getDocs, addDoc, updateDoc, doc, query, where, orderBy, Timestamp, serverTimestamp } from 'firebase/firestore';
+import { collection, getDocs, addDoc, doc, query, orderBy, Timestamp, serverTimestamp, runTransaction } from 'firebase/firestore';
 import { db } from '../../auth/firebase';
 import { SIGHTING_STATUS } from '../constants/sightingStatus';
 import { ERROR_CODES } from '../constants/errorCodes';
@@ -36,7 +36,7 @@ export const createSighting = async (data) => {
             reviewed_by: null,
             review_comment: null,
         };
-        return await addDoc(collection(db, 'sightings'), payload);
+        return await addDoc(collection(db, 'sightings_master'), payload);
     }
     catch (err) {
         throw handleAndWrap(ERROR_CODES.CREATE_SIGHTING_FAILED, err);
@@ -50,8 +50,7 @@ export const createSighting = async (data) => {
 export const fetchPublicSightings = async () => {
     try {
         const sightingsQuery = query(
-            collection(db, 'sightings'),
-            where('status', '==', SIGHTING_STATUS.APPROVED),
+            collection(db, 'sightings_published'),
             orderBy('sighted_at', 'desc')
         );
 
@@ -71,7 +70,7 @@ export const fetchPublicSightings = async () => {
 export const fetchAllSightings = async () => {
     try {
         const sightingsQuery = query(
-            collection(db, 'sightings'),
+            collection(db, 'sightings_master'),
             orderBy('sighted_at', 'desc')
         );
 
@@ -87,11 +86,61 @@ export const fetchAllSightings = async () => {
 
 /**
  * 管理者用: 投稿更新
+ * - ステータス変更を含む任意のフィールド更新が可能
+ * - 承認済み投稿は公開データも同期更新
+ * - 承認→却下の場合は公開データを削除
+ * @param {string} id - 投稿ID
+ * @param {Object} patch - 更新するフィールド
+ * @returns {Promise<void>}
  */
 export const updateSighting = async (id, patch) => {
     try {
-        const ref = doc(db, 'sightings', id);
-        await updateDoc(ref, patch);
+        await runTransaction(db, async (transaction) => {
+            const masterRef = doc(db, 'sightings_master', id);
+            const publishedRef = doc(db, 'sightings_published', id);
+
+            // 現在のステータスを確認するためのデータ取得
+            const masterDoc = await transaction.get(masterRef);
+            if (!masterDoc.exists()) {
+                throw new Error(`Master document does not exist: ${id}`);
+            }
+
+            const currentData = masterDoc.data();
+            const currentStatus = currentData.status;
+            
+            // 更新後のステータスを決定
+            let newStatus;
+            if ('status' in patch) {
+                newStatus = patch.status;
+            }
+            else {
+                newStatus = currentStatus;
+            }
+
+            // マスターの更新
+            transaction.update(masterRef, patch);
+
+            // 承認済みの場合、公開用データも更新する
+            if (newStatus === SIGHTING_STATUS.APPROVED) {
+                // 公開用のフィールド準備
+                const publishedFields = ['animal_type', 'sighted_at', 'lat', 'lng', 'note'];
+                const publishedData = {};
+
+                publishedFields.forEach(field => {
+                    if (field in patch) {
+                        publishedData[field] = patch[field];
+                    }
+                    else {
+                        publishedData[field] = currentData[field]
+                    }
+                });
+                transaction.set(publishedRef, publishedData);
+            }
+            // 承認状態から日承認状態に変更された場合公開用データを削除
+            else if (currentStatus === SIGHTING_STATUS.APPROVED) {
+                transaction.delete(publishedRef);
+            }
+        });
     }
     catch (err) {
         throw handleAndWrap(ERROR_CODES.UPDATE_SIGHTING_FAILED, err);
@@ -100,19 +149,50 @@ export const updateSighting = async (id, patch) => {
 
 /**
  * 管理者用: 投稿のレビューを更新する
+ * - 承認時: マスター更新、公開コレクション作成
+ * - 却下時: マスター更新、公開コレクション削除
  * @param {string} id - 投稿ID
  * @param {{ status: string, review_comment: string, reviewed_by: string }} data - レビューデータ
  * @returns {Promise<void>}
  */
 export const reviewSighting = async (id, { status, review_comment, reviewed_by }) => {
     try {
-        const ref = doc(db, 'sightings', id);
-        await updateDoc(ref, {
-            status,
-            review_comment,
-            reviewed_by,
-            reviewed_at: serverTimestamp(),
+        await runTransaction(db, async (transaction) => {
+            const masterRef = doc(db, 'sightings_master', id);
+            const publishedRef = doc(db, 'sightings_published', id);
+
+            // 公開用へのコピーのため最新のマスターデータを取得
+            const masterDoc = await transaction.get(masterRef); 
+            if (!masterDoc.exists()) {
+                throw new Error(`Source data not found for review: ${id}`);
+            }
+            const data = masterDoc.data();
+
+            // マスターのレビュー更新
+            transaction.update(masterRef, {
+                status,
+                review_comment,
+                reviewed_by,
+                reviewed_at: serverTimestamp(),
+            });
+
+            // 承認時は公開用にコピーを作成
+            if (status === SIGHTING_STATUS.APPROVED) {
+                // 公開して良いフィールド
+                const publishedData = {
+                    animal_type: data.animal_type,
+                    sighted_at: data.sighted_at,
+                    lat: data.lat,
+                    lng: data.lng,
+                    note: data.note,
+                };
+                transaction.set(publishedRef, publishedData);
+            }
+            else {
+                transaction.delete(publishedRef);
+            }
         });
+
     }
     catch (err) {
         throw handleAndWrap(ERROR_CODES.REVIEW_SIGHTING_FAILED, err);
