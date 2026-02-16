@@ -1,25 +1,19 @@
 import { collection, getDocs, addDoc, doc, query, orderBy, Timestamp, serverTimestamp, runTransaction } from 'firebase/firestore';
+
 import { db } from '../../auth/firebase';
+
+import { validateCreateOrThrow, validateUpdateOrThrow } from '../validation/validateSighting';
+import { ServiceError } from '../../../errors/ServiceError';
+
 import { SIGHTING_STATUS } from '../constants/sightingStatus';
 import { ERROR_CODES } from '../constants/errorCodes';
-
-/**
- * 開発環境でのみ詳細ログを出す
- */
-const isDev = import.meta.env.VITE_APP_ENV === 'development';
-const handleAndWrap = (code, originalError) => {
-    if (isDev) {
-        console.error(`[SightingsService] ${code}`, originalError);
-    }
-    const err = new Error(code);
-    err.code = code;
-    return err;
-};
 
 /**
  * 投稿者用: 新規投稿（ステータスは必ず未承認）
  */
 export const createSighting = async (data) => {
+    validateCreateOrThrow(data);
+    
     try {
         const payload = {
             animal_type: data.animal_type,
@@ -39,7 +33,11 @@ export const createSighting = async (data) => {
         return await addDoc(collection(db, 'sightings_master'), payload);
     }
     catch (err) {
-        throw handleAndWrap(ERROR_CODES.CREATE_SIGHTING_FAILED, err);
+        throw new ServiceError(ERROR_CODES.CREATE_SIGHTING_FAILED, err, {
+            operation: 'createSighting',
+            animalType: data.animal_type,
+            hasNote: !!data.note
+        });
     }
 };
 
@@ -60,7 +58,10 @@ export const fetchPublicSightings = async () => {
         }));
     }
     catch (err) {
-        throw handleAndWrap(ERROR_CODES.FETCH_PUBLIC_SIGHTINGS_FAILED, err);
+        throw new ServiceError(ERROR_CODES.FETCH_PUBLIC_SIGHTINGS_FAILED, err, {
+            operation: 'fetchPublicSightings',
+            collection: 'sightings_published'
+        });
     }
 };
 
@@ -80,7 +81,10 @@ export const fetchAllSightings = async () => {
         }));
     }
     catch (err) {
-        throw handleAndWrap(ERROR_CODES.FETCH_ALL_SIGHTINGS_FAILED, err);
+        throw new ServiceError(ERROR_CODES.FETCH_ALL_SIGHTINGS_FAILED, err, {
+            operation: 'fetchAllSightings',
+            collection: 'sightings_master'
+        });
     }
 };
 
@@ -94,6 +98,13 @@ export const fetchAllSightings = async () => {
  * @returns {Promise<void>}
  */
 export const updateSighting = async (id, patch) => {
+    const needsValidation = 'animal_type' in patch || 'sighted_at' in patch ||
+                            'lat' in patch || 'lng' in patch || 'note' in patch;
+
+    if (needsValidation) {
+        validateUpdateOrThrow(patch);
+    }
+
     try {
         await runTransaction(db, async (transaction) => {
             const masterRef = doc(db, 'sightings_master', id);
@@ -143,7 +154,12 @@ export const updateSighting = async (id, patch) => {
         });
     }
     catch (err) {
-        throw handleAndWrap(ERROR_CODES.UPDATE_SIGHTING_FAILED, err);
+        throw new ServiceError(ERROR_CODES.UPDATE_SIGHTING_FAILED, err, {
+            operation: 'updateSighting',
+            sightingId: id,
+            updatedFields: Object.keys(patch),
+            statusChange: 'status' in patch ? patch.status : undefined
+        });
     }
 };
 
@@ -195,6 +211,12 @@ export const reviewSighting = async (id, { status, review_comment, reviewed_by }
 
     }
     catch (err) {
-        throw handleAndWrap(ERROR_CODES.REVIEW_SIGHTING_FAILED, err);
+        throw new ServiceError(ERROR_CODES.REVIEW_SIGHTING_FAILED, err, {
+            operation: 'reviewSighting',
+            sightingId: id,
+            reviewAction: status,
+            hasComment: !!review_comment,
+            reviewerId: reviewed_by
+        });
     }
 };
