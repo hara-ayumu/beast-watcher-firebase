@@ -1,6 +1,6 @@
 import { Toaster } from 'react-hot-toast';
 
-import AdminHeader from '../features/sightings/admin/components/AdminHeader';
+import AdminHeader from '../layouts/admin/AdminHeader';
 import AdminSightingPanel from '../features/sightings/admin/components/AdminSightingPanel';
 
 /**

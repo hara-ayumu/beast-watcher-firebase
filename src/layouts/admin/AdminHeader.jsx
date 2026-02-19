@@ -3,15 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import { signOut } from 'firebase/auth';
 import { FirebaseError } from 'firebase/app';
 
-import { auth } from '../../../auth/firebase';
-import HeaderBase from '../../../common/components/HeaderBase';
-import HeaderButtonLink from '../../../common/components/HeaderButtonLink';
+import { auth } from '../../features/auth/firebase';
+import HeaderBase from '../HeaderBase';
+import HeaderButtonLink from '../HeaderButtonLink';
 
 /**
- * 管理者ヘッダー
+ * 管理者画面ヘッダー
  * 
  * ログアウトボタン付き
- * @returns {JSX} ヘッダー
+ * @returns {JSX.Element}
  */
 function AdminHeader() {
     const navigate = useNavigate();
@@ -33,7 +33,7 @@ function AdminHeader() {
             title="管理者パネル"
             right={<HeaderButtonLink className="px-2 py-1 hover:bg-gray-200 rounded" onClick={handleLogout}>ログアウト</HeaderButtonLink>}
         />
-    )
+    );
 }
 
 export default AdminHeader;

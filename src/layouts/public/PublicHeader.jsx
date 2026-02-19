@@ -1,9 +1,9 @@
 import { useState } from 'react';
 
-import HeaderBase from '../../../common/components/HeaderBase';
-import HeaderButtonLink from '../../../common/components/HeaderButtonLink';
+import HeaderBase from '../HeaderBase';
+import HeaderButtonLink from '../HeaderButtonLink';
 
-import { useAuth } from '../../../auth/hooks/useAuth'
+import { useAuth } from '../../features/auth/hooks/useAuth';
 
 /**
  * 利用者画面ヘッダー

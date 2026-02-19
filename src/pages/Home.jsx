@@ -5,7 +5,7 @@ import { Toaster } from 'react-hot-toast';
 
 import MapLoading from '../features/common/components/MapLoading';
 
-import PublicHeader from '../features/sightings/public/components/PublicHeader';
+import PublicHeader from '../layouts/public/PublicHeader';
 import Map from '../features/sightings/public/components/Map';
 import AddSightingForm from '../features/sightings/public/components/AddSightingForm';
 
