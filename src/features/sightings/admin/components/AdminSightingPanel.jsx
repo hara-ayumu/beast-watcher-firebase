@@ -5,8 +5,8 @@ import toast from 'react-hot-toast';
 import PanelLoading from '../../../common/components/PanelLoading';
 import SectionLoading from './SectionLoading';
 import AdminMap from './AdminMap';
-import Tabs from './Tabs';
-import DataGrid from './DataGrid';
+import Tabs from '../../../../components/Tabs';
+import DataGrid from '../../../../components/DataGrid';
 import PostActionButtons from './PostActionButtons';
 import ReviewConfirmModal from './ReviewConfirmModal';
 

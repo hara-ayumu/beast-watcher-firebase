@@ -1,6 +1,9 @@
 /**
  * タブ切り替えUI
- * 管理画面で投稿ステータスを切り替えるために使用
+ * @param {{ label: string, value: string }[]} tabs - タブの定義
+ * @param {string} activeTab - 現在アクティブなタブのvalue
+ * @param {(value: string) => void} onChange - タブ切り替え時のコールバック
+ * @returns {JSX.Element}
  */
 function Tabs({ tabs, activeTab, onChange }) {
     return (
@@ -25,7 +28,7 @@ function Tabs({ tabs, activeTab, onChange }) {
                 );
             })}
         </div>
-    )
+    );
 }
 
 export default Tabs;
