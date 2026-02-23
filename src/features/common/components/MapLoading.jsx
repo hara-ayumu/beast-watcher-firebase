@@ -1,15 +1,16 @@
-import ReactLoading from 'react-loading';
+import LoadingBase from '../../../components/LoadingBase';
 
 /**
  * 地図のローディング表示コンポーネント
  * 地図コンテナ内に表示されるオーバーレイ
- * @param {string} color - スピナーの色（デフォルト: 青） 
- * @returns {JSX.Elements} 
+ * @param {Object} props
+ * @param {string} [props.color='#3b82f6'] - スピナーの色（デフォルト: 青）
+ * @returns {JSX.Element}
  */
 function MapLoading({ color = '#3b82f6' }) {
     return (
         <div className="absolute inset-0 bg-gray-100 bg-opacity-90 flex items-center justify-center z-10">
-            <ReactLoading type="spin" color={color} height={50} width={50} />
+            <LoadingBase color={color} />
         </div>
     );
 }

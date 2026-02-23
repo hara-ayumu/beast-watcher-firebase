@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 
 import PanelLoading from '../../../common/components/PanelLoading';
-import SectionLoading from './SectionLoading';
+import SectionLoading from '../../../common/components/SectionLoading';
 import AdminMap from './AdminMap';
 import Tabs from '../../../../components/Tabs';
 import DataGrid from '../../../../components/DataGrid';
