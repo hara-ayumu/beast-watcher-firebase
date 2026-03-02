@@ -8,8 +8,8 @@ import { useAuth } from '../../features/auth/hooks/useAuth';
 /**
  * 利用者画面ヘッダー
  * - 常時表示の固定ヘッダー
- * - PC：右側にリンク表示
- * - SP：ハンバーガーメニュー
+ * - レスポンシブ対応（PC: リンク表示 / SP: ハンバーガーメニュー）
+ * - 認証状態に応じてナビゲーションリンクを切り替え
  * @returns {JSX.Element}
  */
 function PublicHeader() {
@@ -17,13 +17,13 @@ function PublicHeader() {
     const { user } = useAuth();
 
     const menuItems = [
-        user ? { label: '管理画面へ', href: '/admin' } : { label: 'ログイン', href: '/login' },
+        user ? { label: '管理画面へ', href: '/admin' } : { label: '管理者ログイン', href: '/login' },
     ];
 
     const rightContent = (
         <>
             {/* PC */}
-            <div className="hidden md:flex space-x-4">
+            <div className="hidden md:flex gap-4">
                 {menuItems.map(item => (
                     <HeaderButtonLink
                         key={item.label}

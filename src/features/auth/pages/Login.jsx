@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 import { signInWithEmailAndPassword } from 'firebase/auth';
 
@@ -24,6 +24,12 @@ function Login() {
 
     return (
         <div className="relative min-h-screen flex items-center justify-center bg-gray-100">
+            <div className="absolute top-4 left-4">
+                <Link to="/" className="text-sm text-gray-600 hover:text-blue-500 flex items-center">
+                    ← トップページへ
+                </Link>
+            </div>
+            
             {/* カード */}
             <div className="bg-white shadow-lg rounded-lg w-full max-w-sm p-8">
                 <h1 className="text-2xl font-bold text-gray-800 text-center mb-1">Beast Watcher</h1>
@@ -36,7 +42,7 @@ function Login() {
                     </div>
                 )}
 
-                <form className="flex flex-col space-y-4" onSubmit={handleLogin}>
+                <form className="flex flex-col gap-4" onSubmit={handleLogin}>
                     {/* メールアドレス */}
                     <div>
                         <label htmlFor="email" className="block text-gray-700 text-sm mb-1">メールアドレス</label>
