@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import Modal from 'react-modal'
 import { Toaster } from 'react-hot-toast';
@@ -8,20 +8,45 @@ import MapLoading from '../features/common/components/MapLoading';
 import PublicHeader from '../layouts/public/PublicHeader';
 import Map from '../features/sightings/public/components/Map';
 import AddSightingForm from '../features/sightings/public/components/AddSightingForm';
+import InfoModal from '../features/sightings/public/components/InfoModal';
 
 import { usePublicSightings } from '../features/sightings/public/hooks/usePublicSightings';
+
+const TERMS_AGREED_KEY = 'bw_terms_agreed';
 
 /**
  * Home（利用者向けトップページ）
  * - 承認済みの目撃情報を地図上に表示
  * - 地図上で地点を選択し、目撃情報を投稿
+ * - 利用規約・投稿方法モーダルの表示を管理
  * @returns {JSX.Element}
  */
 function Home() {
     const [ selectedLocation, setSelectedLocation ] = useState(null);
     const [ isSightingFormOpen, setIsSightingFormOpen ] = useState(false);
 
+    const [ isTermsModalOpen, setIsTermsModalOpen ] = useState(false);
+    const [ isPostingGuideModalOpen, setIsPostingGuideModalOpen ] = useState(false);
+    const [ isFirstVisit, setIsFirstVisit ] = useState(false);
+
     const { posts: markers, loading, error, loadPosts } = usePublicSightings();
+
+    // 初回アクセス時、利用規約に未同意の場合はモーダルを表示して同意を促す
+    useEffect(() => {
+        const agreed = sessionStorage.getItem(TERMS_AGREED_KEY);
+        if (!agreed) {
+            setIsFirstVisit(true);
+            setIsTermsModalOpen(true);
+        }
+    }, []);
+
+    const handleTermsClose = () => {
+        if (isFirstVisit) {
+            sessionStorage.setItem(TERMS_AGREED_KEY, 'true');
+            setIsFirstVisit(false);
+        }
+        setIsTermsModalOpen(false);
+    };
 
     // 投稿後の仮マーカーを削除してMAP再表示
     const handleUpdate = () => {
@@ -46,7 +71,10 @@ function Home() {
             />
 
             {/* 一般ページ用ヘッダー */}
-            <PublicHeader />
+            <PublicHeader
+                onTermsOpen={() => setIsTermsModalOpen(true)}
+                onPostingGuideOpen={() => setIsPostingGuideModalOpen(true)}
+            />
 
             <div className="flex flex-1 min-h-0">
                 <div className="flex-1 relative pb-[env(safe-area-inset-bottom)]">
@@ -116,8 +144,8 @@ function Home() {
                 onRequestClose={() => setIsSightingFormOpen(false)}
                 shouldCloseOnOverlayClick={true}
                 shouldCloseOnEsc={true}
-                overlayClassName="fixed inset-0 bg-black/40 flex items-center justify-center z-40"
                 className="bg-white w-[95%] max-w-md max-h-[90vh] overflow-y-auto rounded-xl p-4 relative outline-none"
+                overlayClassName="fixed inset-0 bg-black/40 flex items-center justify-center z-40"
             >
                 {selectedLocation && (
                     <>
@@ -149,6 +177,19 @@ function Home() {
                     </>
                 )}
             </Modal>
+
+            <InfoModal
+                isOpen={isTermsModalOpen}
+                onClose={handleTermsClose}
+                mode="terms"
+                requiresAgreement={isFirstVisit}
+            />
+
+            <InfoModal
+                isOpen={isPostingGuideModalOpen}
+                onClose={() => setIsPostingGuideModalOpen(false)}
+                mode="postingGuide"
+            />
         </div>
     );
 }

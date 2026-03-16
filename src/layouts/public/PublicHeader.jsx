@@ -10,13 +10,18 @@ import { useAuth } from '../../features/auth/hooks/useAuth';
  * - 常時表示の固定ヘッダー
  * - レスポンシブ対応（PC: リンク表示 / SP: ハンバーガーメニュー）
  * - 認証状態に応じてナビゲーションリンクを切り替え
+ * @param {Object} props
+ * @param {() => void} props.onTermsOpen - 「利用規約」選択時のコールバック
+ * @param {() => void} props.onPostingGuideOpen - 「投稿方法」選択時のコールバック
  * @returns {JSX.Element}
  */
-function PublicHeader() {
+function PublicHeader({ onTermsOpen, onPostingGuideOpen }) {
     const [ isMenuOpen, setIsMenuOpen ] = useState(false);
     const { user } = useAuth();
 
     const menuItems = [
+        { label: '投稿方法', onClick: onPostingGuideOpen },
+        { label: '利用規約', onClick: onTermsOpen },
         user ? { label: '管理画面へ', href: '/admin' } : { label: '管理者ログイン', href: '/login' },
     ];
 
@@ -29,6 +34,7 @@ function PublicHeader() {
                         key={item.label}
                         to={item.href}
                         className="px-2 py-1 hover:bg-gray-200 rounded"
+                        onClick={item.onClick}
                     >
                         {item.label}
                     </HeaderButtonLink>
@@ -51,7 +57,10 @@ function PublicHeader() {
                                 key={item.label}
                                 to={item.href}
                                 className="block px-4 py-2 hover:bg-gray-200"
-                                onClick={() => setIsMenuOpen(false)}
+                                onClick={() => {
+                                    item.onClick?.();
+                                    setIsMenuOpen(false);
+                                }}
                             >
                                 {item.label}
                             </HeaderButtonLink>
