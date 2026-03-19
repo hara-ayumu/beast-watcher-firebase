@@ -1,13 +1,12 @@
 import { useEffect, useState } from 'react';
 
-import Modal from 'react-modal'
 import { Toaster } from 'react-hot-toast';
 
 import MapLoading from '../features/common/components/MapLoading';
 
 import PublicHeader from '../layouts/public/PublicHeader';
 import Map from '../features/sightings/public/components/Map';
-import AddSightingForm from '../features/sightings/public/components/AddSightingForm';
+import AddSightingModal from '../features/sightings/public/components/AddSightingModal';
 import InfoModal from '../features/sightings/public/components/InfoModal';
 
 import { usePublicSightings } from '../features/sightings/public/hooks/usePublicSightings';
@@ -139,44 +138,12 @@ function Home() {
             </div>
 
             {/* 投稿フォームモーダル */}
-            <Modal
-                isOpen={isSightingFormOpen && !!selectedLocation}
-                onRequestClose={() => setIsSightingFormOpen(false)}
-                shouldCloseOnOverlayClick={true}
-                shouldCloseOnEsc={true}
-                className="bg-white w-[95%] max-w-md max-h-[90vh] overflow-y-auto rounded-xl p-4 relative outline-none"
-                overlayClassName="fixed inset-0 bg-black/40 flex items-center justify-center z-40"
-            >
-                {selectedLocation && (
-                    <>
-                        <button
-                            className="absolute top-2 right-2 text-xl"
-                            onClick={() => setIsSightingFormOpen(false)}
-                        >
-                            ×
-                        </button>
-
-                        <div className="mb-3 text-sm text-gray-600">
-                            <p className="font-medium">選択地点</p>
-                            <p>緯度: {selectedLocation.lat.toFixed(5)}</p>
-                            <p>経度: {selectedLocation.lng.toFixed(5)}</p>
-                            <button
-                                className="text-blue-600 underline mt-1"
-                                onClick={() => setIsSightingFormOpen(false)}
-                            >
-                                地点を変更する
-                            </button>
-                        </div>
-
-                        <h3 className="text-lg font-semibold mb-2">目撃情報を投稿</h3>
-
-                        <AddSightingForm
-                            selectedLocation={selectedLocation}
-                            onSubmit={handleUpdate}
-                        />
-                    </>
-                )}
-            </Modal>
+            <AddSightingModal
+                isOpen={isSightingFormOpen}
+                onClose={() => setIsSightingFormOpen(false)}
+                selectedLocation={selectedLocation}
+                onSubmit={handleUpdate}
+            />
 
             <InfoModal
                 isOpen={isTermsModalOpen}
