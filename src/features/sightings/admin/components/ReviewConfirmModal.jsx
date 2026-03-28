@@ -2,6 +2,8 @@ import { useState } from 'react';
 
 import Modal from 'react-modal';
 
+import { isWithinTakagi } from '../../validation/areaValidator';
+
 import { SIGHTING_STATUS } from '../../constants/sightingStatus';
 
 /**
@@ -59,6 +61,14 @@ function ReviewConfirmModal({ isOpen, post, nextStatus, onSubmit, onCancel }) {
                 </p>
                 <p className="text-sm text-gray-600 mb-2">
                     <strong>経度:</strong> {post.lng}
+                </p>
+                <p className="text-sm mb-2">
+                    <strong>エリア判定:</strong>{' '}
+                    {isWithinTakagi(post.lat, post.lng) ? (
+                        <span className="text-green-600 font-bold">エリア内</span>
+                    ) : (
+                        <span className="text-red-600 font-bold">エリア外</span>
+                    )}
                 </p>
                 <p className="text-sm text-gray-600 mb-2">
                     <strong>詳細:</strong> {post.note}
