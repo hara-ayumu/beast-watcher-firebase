@@ -5,21 +5,32 @@ import { signInWithEmailAndPassword } from 'firebase/auth';
 
 import { auth } from '../firebase';
 
+const DEMO_EMAIL = 'bf-admin@example.com';
+const DEMO_PASSWORD = 'admin1234';
+
 function Login() {
     const [ email, setEmail ] = useState('');
     const [ password, setPassword ] = useState('');
-    const [ error, setError ] = useState('');
+    const [ error, setError ] = useState(false);
     const navigate = useNavigate();
 
-    const handleLogin = async (e) => {
-        e.preventDefault();
+    const login = async (email, password) => {
         try {
             await signInWithEmailAndPassword(auth, email, password);
             navigate('/admin');
         }
-        catch (err) {
-            setError('ログイン失敗： ' + err.message);
+        catch {
+            setError(true);
         }
+    };
+
+    const handleLogin = (e) => {
+        e.preventDefault();
+        login(email, password);
+    };
+
+    const handleDemoLogin = () => {
+        login(DEMO_EMAIL, DEMO_PASSWORD);
     };
 
     return (
@@ -67,8 +78,21 @@ function Login() {
                             required
                         />
                     </div>
-                        <button type="submit" className="w-full py-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg transition-colors">ログイン</button>
+                    <button type="submit" className="w-full py-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg transition-colors">ログイン</button>
                 </form>
+                
+                <div className="mt-4 border-t pt-4">
+                    <p className="text-gray-500 text-xs text-center mb-2">
+                        ポートフォリオ閲覧用
+                    </p>
+                    <button
+                        type="button"
+                        className="w-full py-2 bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-lg transition-colors"
+                        onClick={handleDemoLogin}
+                    >
+                        デモアカウントでログイン
+                    </button>
+                </div>
                 <div className="text-center text-gray-400 text-xs mt-6">&copy; 2025 Hara Ayumu</div>
             </div>
         </div>
