@@ -13,6 +13,15 @@ import { SIGHTING_TYPE_OPTIONS } from '../../constants/sightingTypes';
 import { ERROR_MESSAGES } from '../../constants/errorMessages';
 import { ERROR_CODES } from '../../constants/errorCodes';
 
+/**
+ * 目撃情報投稿フォーム
+ * - 動物の種類・目撃日時・詳細を入力して投稿する
+ * - クライアントサイドバリデーション付き
+ * @param {Object} props
+ * @param {{ lat: number, lng: number }} props.selectedLocation - 投稿対象の地点
+ * @param {() => void} props.onSubmit - 投稿完了時に呼ばれるコールバック
+ * @returns {JSX.Element}
+ */
 function AddSightingForm({ selectedLocation, onSubmit }) {
     const [ animal_type, setAnimalType ] = useState('');
     const [ sighted_at, setSightedAt ] = useState('');

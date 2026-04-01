@@ -3,6 +3,11 @@ import { fetchAllSightings, reviewSighting } from '../../services/sightingsServi
 import { mapErrorToUiMessage } from '../../../utils/errorMapper';
 import { SIGHTING_STATUS } from '../../constants/sightingStatus';
 
+/**
+ * 管理者画面用の目撃情報管理フック
+ * - 全投稿の取得とレビュー（承認/却下）操作を提供
+ * @returns {{ posts: Object[], initialLoading: boolean, updating: boolean, error: string|null, loadPosts: () => Promise<void>, submitReview: (id: string, reviewData: Object) => Promise<{success: boolean, error?: string}> }}
+ */
 export const useAdminSightings = () => {
     const [ posts, setPosts ] = useState([]);
     const [ initialLoading, setInitialLoading ] = useState(false);

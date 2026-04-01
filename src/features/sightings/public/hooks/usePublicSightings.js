@@ -2,6 +2,11 @@ import { useEffect, useState } from 'react'
 import { fetchPublicSightings, createSighting } from '../../services/sightingsService';
 import { mapErrorToUiMessage } from '../../../utils/errorMapper';
 
+/**
+ * 利用者画面用の目撃情報管理フック
+ * - 承認済み投稿の取得と新規投稿を提供
+ * @returns {{ posts: Object[], loading: boolean, error: string|null, loadPosts: () => Promise<void>, addPost: (data: Object) => Promise<{success: boolean, error?: string}> }}
+ */
 export const usePublicSightings = () => {
     const [ posts, setPosts ] = useState([]);
     // 利用者画面ではMap領域のローディング表示だけで十分なため、投稿取得・追加のloadingを分けていない

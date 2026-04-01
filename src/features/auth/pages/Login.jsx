@@ -8,6 +8,12 @@ import { auth } from '../firebase';
 const DEMO_EMAIL = 'bf-admin@example.com';
 const DEMO_PASSWORD = 'admin1234';
 
+/**
+ * 管理者ログインページ
+ * - メールアドレス/パスワードによる認証
+ * - ポートフォリオ閲覧用のデモアカウントログイン機能
+ * @returns {JSX.Element}
+ */
 function Login() {
     const [ email, setEmail ] = useState('');
     const [ password, setPassword ] = useState('');
