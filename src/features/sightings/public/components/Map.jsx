@@ -11,9 +11,10 @@ import MapLoading from '../../../common/components/MapLoading';
  * - 目撃情報(status: approved のみ)をマーカーで表示
  * - マーカー選択で InfoWindow 表示
  * - 地図クリックで投稿予定地点を選択し、親コンポーネントに通知
- * @param {{ id: string, animal_type: string, sighted_at: import('firebase/firestore').Timestamp, lat: number, lng: number, note: string }[]} markers - 目撃情報一覧
- * @param {(location: { lat: number, lng: number }) => void} onMapClick - 地図クリック時に選択した座標を親コンポーネントに通知
- * @param {{ lat: number, lng: number } | null} selectedLocation - 投稿予定地点を示す仮マーカーの座標
+ * @param {Object} props
+ * @param {{ id: string, animal_type: string, sighted_at: import('firebase/firestore').Timestamp, lat: number, lng: number, note: string }[]} props.markers - 目撃情報一覧
+ * @param {(location: { lat: number, lng: number }) => void} props.onMapClick - 地図クリック時に選択した座標を親コンポーネントに通知
+ * @param {{ lat: number, lng: number } | null} props.selectedLocation - 投稿予定地点を示す仮マーカーの座標
  * @returns {JSX.Element}
  */
 function Map({ markers, onMapClick, selectedLocation }) {

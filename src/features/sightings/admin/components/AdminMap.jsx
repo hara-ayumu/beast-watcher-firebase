@@ -12,15 +12,16 @@ import { STATUS_MARKER_ICONS } from '../../constants/markerIcons';
  * - マーカー選択で InfoWindow 表示
  * - InfoWindow 内で承認/却下が可能
  * - Map の中心(center)や参照(mapRef)を親コンポーネントと同期
- * @param {{ id: string, animal_type: string, sighted_at: string, lat: number, lng: number, note: string, status: string }[]} posts - 投稿データ一覧
- * @param {{ id: string, animal_type: string, sighted_at: string, lat: number, lng: number, note: string, status: string } | null} selectedPost - 選択中の投稿
- * @param {(post: Object | null) => void} setSelectedPost - 選択投稿を更新する関数
- * @param {(post: Object) => void} onApprove - 投稿承認ハンドラ
- * @param {(post: Object) => void} onReject - 投稿却下ハンドラ
- * @param {google.maps.Map | null} mapRef - GoogleMap インスタンス
- * @param {(map: google.maps.Map) => void} setMapRef - GoogleMap インスタンスをセットする関数
- * @param {{ lat: number, lng: number }} center - 地図中心
- * @param {(center: { lat: number, lng: number }) => void} setCenter - 地図中心を更新する関数
+ * @param {Object} props
+ * @param {{ id: string, animal_type: string, sighted_at: string, lat: number, lng: number, note: string, status: string }[]} props.posts - 投稿データ一覧
+ * @param {{ id: string, animal_type: string, sighted_at: string, lat: number, lng: number, note: string, status: string } | null} props.selectedPost - 選択中の投稿
+ * @param {(post: Object | null) => void} props.setSelectedPost - 選択投稿を更新する関数
+ * @param {(post: Object) => void} props.onApprove - 投稿承認ハンドラ
+ * @param {(post: Object) => void} props.onReject - 投稿却下ハンドラ
+ * @param {google.maps.Map | null} props.mapRef - GoogleMap インスタンス
+ * @param {(map: google.maps.Map) => void} props.setMapRef - GoogleMap インスタンスをセットする関数
+ * @param {{ lat: number, lng: number }} props.center - 地図中心
+ * @param {(center: { lat: number, lng: number }) => void} props.setCenter - 地図中心を更新する関数
  * @returns {JSX.Element}
  */
 function AdminMap({posts, selectedPost, setSelectedPost, onApprove, onReject, mapRef, setMapRef, center, setCenter}) {

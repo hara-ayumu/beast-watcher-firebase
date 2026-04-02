@@ -3,9 +3,10 @@ import { SIGHTING_STATUS } from '../../constants/sightingStatus';
 /**
  * 投稿ステータスに応じた操作ボタンを表示するコンポーネント
  * DataGridやInfoWindowなど共通で使用可能
- * @param {string} status - 投稿の状態 ("pending" | "approved" | "rejected")
- * @param {Function} onApprove - 承認ボタンをクリックしたときに呼ばれる関数
- * @param {Function} onReject - 却下ボタンをクリックしたときに呼ばれる関数
+ * @param {Object} props
+ * @param {string} props.status - 投稿の状態 ("pending" | "approved" | "rejected")
+ * @param {() => void} props.onApprove - 承認ボタンをクリックしたときに呼ばれる関数
+ * @param {() => void} props.onReject - 却下ボタンをクリックしたときに呼ばれる関数
  * @returns {JSX.Element} 状態に応じた操作ボタンの JSX
  */
 function PostActionButtons({ status, onApprove, onReject }) {

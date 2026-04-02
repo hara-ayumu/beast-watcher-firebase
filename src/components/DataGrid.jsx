@@ -1,15 +1,13 @@
 /**
  * 汎用データテーブル
- * 
- * 機能:
  * - 管理画面での投稿一覧表示
  * - 行クリックによるMap連動
- * 
- * @param {Array} columns - { key, label } の配列
- * @param {Array} data - 表示するデータ
- * @param {Boolean} zebra - 奇数偶数で色分け
- * @param {Function} onRowClick - 行クリック時
- * @param {Function} rowActions - 行右端にボタンなどを描画
+ * @param {Object} props
+ * @param {{ key: string, label: string }[]} props.columns - カラムの定義
+ * @param {Object[]} props.data - 表示するデータ
+ * @param {boolean} [props.zebra=false] - 奇数偶数で色分け
+ * @param {(row: Object) => void} [props.onRowClick] - 行クリック時
+ * @param {(row: Object) => JSX.Element} [props.rowActions] - 行右端にボタンなどを描画
  * @returns {JSX.Element}
  */
 function DataGrid({ columns, data, zebra = false, onRowClick, rowActions }) {

@@ -10,11 +10,12 @@ import { SIGHTING_STATUS } from '../../constants/sightingStatus';
  * 投稿レビュー確認モーダル
  * - 投稿内容を確認し、承認または却下を確定する
  * - 却下時はレビューコメントの入力必須
- * @param {boolean} isOpen - モーダルの表示状態
- * @param {Object} post - レビュー対象の投稿
- * @param {'approved'|'rejected'} nextStatus - 変更予定のステータス
- * @param {(review: {status: 'approved'|'rejected', reviewComment: string}) => Promise<void>} onSubmit - 確定時のコールバック
- * @param {() => void} onCancel - キャンセル時のコールバック
+ * @param {Object} props
+ * @param {boolean} props.isOpen - モーダルの表示状態
+ * @param {Object} props.post - レビュー対象の投稿
+ * @param {'approved'|'rejected'} props.nextStatus - 変更予定のステータス
+ * @param {(review: { status: 'approved'|'rejected', reviewComment: string }) => Promise<void>} props.onSubmit - 確定時のコールバック
+ * @param {() => void} props.onCancel - キャンセル時のコールバック
  * @returns {JSX.Element}
  */
 function ReviewConfirmModal({ isOpen, post, nextStatus, onSubmit, onCancel }) {
