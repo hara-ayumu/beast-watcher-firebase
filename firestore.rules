@@ -1,0 +1,135 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+  	
+    // ========================================
+    // 定数定義
+    // フロントエンドの定数ファイルと同期させてください
+    // ========================================
+    
+    // 許可される動物の種類 (src/constants/sightingTypes.js)
+    function getAllowedAnimalTypes() {
+      return ['クマ', 'サル'];
+    }
+
+    // 許可されるステータス (src/constants/sightingStatus.js)
+    function getAllowedStatuses() {
+      return ['pending', 'approved', 'rejected'];
+    }
+    
+    // 目撃日時の遡り許容範囲 (src/constants/validationConstants.js)
+    // フロント側は2年前（カレンダー基準）で制限。
+    // Firestore側はうるう年（最大1日）とタイムゾーン・ネットワーク遅延を考慮し、
+    // 730日（365日×2）に2日のバッファを加えて設定。
+    function getMaxPastDays() {
+      return 732; 
+    }
+
+    // 詳細の最大文字数 (src/constants/validationConstants.js)
+    function getMaxNoteLength() {
+      return 100;
+    }
+
+    // 管理者メールアドレス
+    function getAdminEmails() {
+      return ["bf-admin@example.com"];
+    }
+    
+    // ========================================
+    // ヘルパー関数
+    // ========================================
+
+    // ログインユーザーが管理者か判定
+    function isAdmin() {
+      return request.auth != null && request.auth.token.email in getAdminEmails();
+    }
+
+    // 緯度・経度の範囲バリデーション
+    function isValidLatitude(lat) {
+      return lat is number && lat >= -90 && lat <= 90;
+    }
+    function isValidLongitude(lng) {
+      return lng is number && lng >= -180 && lng <= 180;
+    }
+
+    // 目撃日時のバリデーション
+    function isValidSightedAt(time) {
+      let now = request.time;
+      let maxPastDuration = duration.value(getMaxPastDays(), 'd');
+      return time is timestamp 
+             && time <= now                      // 未来不可
+             && time >= (now - maxPastDuration); // 指定年数以前は不可
+    }
+
+    // 新規投稿データの整合性チェック
+    function isValidNewSighting(data) {
+      let requiredFields = ['animal_type', 'sighted_at', 'lat', 'lng', 'status', 'created_at'];
+      return data.keys().hasAll(requiredFields)
+        && data.animal_type in getAllowedAnimalTypes()
+        && isValidSightedAt(data.sighted_at)
+        && isValidLatitude(data.lat)
+        && isValidLongitude(data.lng)
+        // noteは任意。入力がある場合は文字数制限
+        && (data.note == null || data.note == "" || (data.note is string && data.note.size() <= getMaxNoteLength()))
+        // 初期状態の強制
+        && data.status == 'pending'
+        && data.created_at == request.time
+        && data.created_by == null // 匿名投稿のためnull固定
+        // レビュー項目は初期値null
+        && (!('review_comment' in data) || data.review_comment == null || data.review_comment == "");
+    }
+
+    // レビュー更新（承認・却下）の整合性チェック
+    function isValidReviewUpdate(oldData, newData) {
+      // 投稿内容（目撃情報そのもの）の変更は禁止
+      let isContentUnchanged = newData.animal_type == oldData.animal_type
+      												&& newData.sighted_at == oldData.sighted_at
+															&& newData.lat == oldData.lat
+															&& newData.lng == oldData.lng
+															&& newData.note == oldData.note;
+
+      // 却下時はコメント必須、承認時は任意（空文字可）
+      let isValidComment = (newData.status == 'rejected')
+        ? (newData.review_comment is string && newData.review_comment.size() > 0)
+        : (newData.status == 'approved' ? (newData.review_comment is string || newData.review_comment == null) : true);
+    	
+      let hasReviewInfo = ('reviewed_by' in newData && newData.reviewed_by != null)
+                          && ('reviewed_at' in newData && newData.reviewed_at == request.time);
+
+      return isContentUnchanged
+        && newData.status in getAllowedStatuses()
+        && isValidComment
+        && newData.reviewed_at == request.time
+        && hasReviewInfo;
+    }
+    
+    // ========================================
+    // コレクション別ルール
+    // ========================================
+    
+    // 投稿・管理用コレクション（マスター）
+		match /sightings_master/{id} {
+    	
+    	// 誰でも投稿できる（投稿にアカウントの必要をなくすため）
+    	allow create: if isValidNewSighting(request.resource.data);
+      
+      // 管理者のみが取得・更新できる（不要な情報を利用者画面に出さないため）
+      allow read: if isAdmin();
+      allow update: if isAdmin() && isValidReviewUpdate(resource.data, request.resource.data);
+      
+      // 削除は禁止
+      allow delete: if false;
+    }
+    
+    // 公開用コレクション（コピーデータ）
+    match /sightings_published/{id} {
+    	
+    	// 全員が取得できる（地図表示用）
+    	allow read: if true;
+      
+      // 管理者のみが書き込みできる
+      allow write: if isAdmin();
+    }
+  }
+}
